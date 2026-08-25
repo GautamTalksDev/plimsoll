@@ -1,8 +1,10 @@
+version: "2"
+
 run:
   timeout: 5m
 
 linters:
-  disable-all: true
+  default: none
   enable:
     - errcheck
     - gosec
@@ -10,4 +12,5 @@ linters:
     - staticcheck
 
 issues:
-  exclude-use-default: false
+  max-issues-per-linter: 0
+  max-same-issues: 0

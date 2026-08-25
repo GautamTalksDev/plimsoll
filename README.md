@@ -1,5 +1,7 @@
 # PLIMSOLL
 
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/gautamtalksdev/plimsoll/badge)](https://scorecard.dev/viewer/?uri=github.com/gautamtalksdev/plimsoll)
+
 **PLIMSOLL never sees your eval data. We store cryptographic digests, metadata and verdicts. Datasets, models, prompts and outputs never leave your machine.**
 
 **There is no override. A sealed decision rule cannot be amended by any flag, setting or paid tier.**
