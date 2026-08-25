@@ -1,0 +1,15 @@
+---
+description: Integrity constraints for the verification tool — deterministic trust path, no evaluation, no user data, no sealed-rule overrides
+alwaysApply: true
+---
+
+# CP-0 — Integrity / verification tool
+
+This is an integrity/verification tool. All logic in the trust path must be deterministic and unit-testable.
+
+- Never add an LLM call, a heuristic score, a probabilistic classifier, or a network request the user did not explicitly request.
+- Never implement an evaluation metric, scorer, or "assessment framework" — this project verifies evaluations, it never performs them.
+- Never receive, store, or transmit a user's dataset, model, prompts, or outputs; digests and metadata only.
+- Never add a flag, env var, or code path that permits overriding a sealed decision rule.
+- Never make our log the only endpoint that can verify an attestation.
+- Never use a dependency not already in go.mod without asking first. Prefer the standard library.

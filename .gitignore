@@ -1,0 +1,28 @@
+# Binaries
+/plimsoll
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/bin/
+/dist/
+
+# Test and coverage
+*.test
+*.out
+coverage.out
+coverage.html
+
+# Go workspace (local)
+go.work
+go.work.sum
+
+# Editor and OS
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
