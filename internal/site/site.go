@@ -266,17 +266,35 @@ const pageT = `<!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{{.Title}} · PLIMSOLL</title>
-<style>
-body{font-family:system-ui,sans-serif;max-width:52rem;margin:2rem auto;padding:0 1rem;line-height:1.5;color:#111}
-nav a{margin-right:1rem}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccc;padding:.4rem}
-code,pre{background:#f4f4f4;padding:.2rem .4rem;border-radius:3px;word-break:break-all}
-</style></head><body>
+<link rel="stylesheet" href="/site.css">
+</head><body>
 <nav><a href="/">Problem</a><a href="/seals">Seals</a><a href="/verify/">Verify</a><a href="/spec">Spec</a><a href="/key">Public key</a><a href="/run-your-own">Run your own</a></nav>
 {{if eq .Page "home"}}
-<h1>Verify evaluations you ran with your own tools</h1>
-<p>PLIMSOLL is an integrity layer for ML evaluation claims. You pre-register a decision rule and dataset digest,
-run your own harness locally, then publish a signed seal and attestation to a transparency log anyone can verify.</p>
-<p>We never receive your dataset, prompts, or model outputs — only digests, signatures, and aggregate verdicts.</p>
+<h1>How many times did they run it?</h1>
+<p class="lede">Someone tells you their model scores 0.87, up from 0.81. Every number is real.
+The claim can still be worthless.</p>
+<p>Moving a threshold after seeing the result is the obvious version, and everybody watches for it.
+The version that actually happens is quieter: run the eval nine times across seeds, temperatures and
+retrieval settings, publish the run that cleared the bar, and say nothing about the other eight.
+Nothing was falsified. Nothing is checkable.</p>
+<p>Git commits do not catch this. Signed results do not catch this. A vendor's own eval platform
+structurally cannot, because the record of discarded attempts would be held by the party the
+absence benefits.</p>
+<h2>What this is</h2>
+<p>Before you run, you publish a <strong>seal</strong>: your metric, threshold, decision rule and dataset
+digest, appended to a public Merkle log. After you run, an <strong>attestation</strong> binds your results
+to that seal. <strong>The log assigns the attempt number, not the client.</strong> A seal with five
+attestations shows five attempts, with all five verdicts, permanently.</p>
+<div class="callout">
+<p>Iterating is normal. Hiding iteration is the problem. Multiple attempts verify as
+<code>VERIFIED WITH DISCLOSURES</code> — a pass that carries context, not a failure.</p>
+</div>
+<h2>What it never sees</h2>
+<p>Datasets, models, prompts and outputs never leave your machine. Only digests, metadata and
+verdicts cross the boundary. There is no override on a sealed decision rule — not by flag,
+config, or paid tier. Amendment is impossible; supersession with a public reason is mandatory.</p>
+<p><a href="/verify/">Verify an attestation</a> in your browser, or read the
+<a href="/spec">specification</a>.</p>
 {{else if eq .Page "seals"}}
 <h1>Recent seals</h1>
 <table><tr><th>Subject</th><th>Seal hash</th><th>Attempts</th><th>Latest</th></tr>
@@ -304,4 +322,11 @@ run your own harness locally, then publish a signed seal and attestation to a tr
 <p>Anyone can run <code>plimsolld</code>. Verification uses <code>plimsoll verify --log &lt;url&gt;</code>, not our database.</p>
 <pre><code>plimsolld -addr :8080 -db ./log.sqlite -key ./log-signing.key</code></pre>
 {{end}}
+<footer>
+<p>The log is a public git repository. Anyone can clone it, replay every Merkle leaf and
+signature offline, and detect a rewritten history — no trust in this operator required.
+Verification works against any conforming log, not only this one.</p>
+<p>Specification CC0 · implementation Apache-2.0 ·
+<a href="https://github.com/GautamTalksDev/plimsoll">source</a></p>
+</footer>
 </body></html>`

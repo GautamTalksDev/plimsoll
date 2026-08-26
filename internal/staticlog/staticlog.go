@@ -81,6 +81,11 @@ func Generate(cfg Config) error {
 	if err := writeHeaders(cfg.OutDir); err != nil {
 		return err
 	}
+	// Served at /site.css. A file rather than an inline <style> block so the
+	// published CSP can forbid inline styles.
+	if err := writeBytes(filepath.Join(cfg.OutDir, "site.css"), []byte(site.StyleCSS)); err != nil {
+		return err
+	}
 	if err := writeRedirects(cfg.OutDir); err != nil {
 		return err
 	}
