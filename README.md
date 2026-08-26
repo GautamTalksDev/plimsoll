@@ -1,6 +1,6 @@
 # PLIMSOLL
 
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/gautamtalksdev/plimsoll/badge)](https://scorecard.dev/viewer/?uri=github.com/gautamtalksdev/plimsoll)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/GautamTalksDev/plimsoll/badge)](https://scorecard.dev/viewer/?uri=github.com/GautamTalksDev/plimsoll)
 
 **PLIMSOLL never sees your eval data. We store cryptographic digests, metadata and verdicts. Datasets, models, prompts and outputs never leave your machine.**
 
@@ -20,9 +20,12 @@ KT-3: If nobody has contacted us unprompted requesting a private log or evidence
 
 PLIMSOLL is an integrity/verification tool. You seal a decision rule before you look at results. Later attempts against that seal are logged. Anyone can verify the attestation offline. The public log stores digests, metadata and verdicts only.
 
-This repository is Week 1 foundations: layout, license, guardrails and prior art. There is no application logic yet.
+This repository is Week 2: the pre-registration specification and seal
+object exist. Decision-rule **evaluation** is not implemented yet.
 
-See [docs/NON-GOALS.md](docs/NON-GOALS.md), [docs/PRIOR-ART.md](docs/PRIOR-ART.md) and [docs/THREAT-MODEL.md](docs/THREAT-MODEL.md).
+See [SPEC-PREREG.md](SPEC-PREREG.md) (prereg-v1, CC0-1.0), [docs/NON-GOALS.md](docs/NON-GOALS.md), [docs/PRIOR-ART.md](docs/PRIOR-ART.md) and [docs/THREAT-MODEL.md](docs/THREAT-MODEL.md).
+
+**DOI:** *not yet issued — recorded here on first Zenodo deposit of SPEC-PREREG.md.*
 
 ## Repository layout
 

@@ -22,6 +22,21 @@ builds:
     ignore:
       - goos: windows
         goarch: arm64
+  - id: plimsolld
+    main: ./cmd/plimsolld
+    binary: plimsolld
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
 
 archives:
   - formats: [binary]
@@ -54,3 +69,26 @@ release:
 
 changelog:
   disable: true
+
+brews:
+  - name: plimsoll
+    repository:
+      owner: gautamtalksdev
+      name: homebrew-plimsoll
+    directory: Formula
+    homepage: "https://github.com/GautamTalksDev/plimsoll"
+    description: "Verify evaluations you ran with your own tools"
+    license: Apache-2.0
+    install: |
+      bin.install "plimsoll"
+    test: |
+      system "#{bin}/plimsoll", "--help"
+
+scoops:
+  - name: plimsoll
+    repository:
+      owner: gautamtalksdev
+      name: scoop-plimsoll
+    homepage: "https://github.com/GautamTalksDev/plimsoll"
+    description: "Verify evaluations you ran with your own tools"
+    license: Apache-2.0

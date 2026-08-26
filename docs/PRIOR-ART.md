@@ -22,3 +22,21 @@ Every date in the table precedes 2022-05-12.
 - Linux Foundation announcement of Sigstore, 2021-03-09. Rekor v0.2.0, 2021-06-17.
 - Google, *Introducing SLSA, an End-to-End Framework for Supply Chain Integrity*, 2021-06-16.
 - NIH launch of ClinicalTrials.gov, 2000-02-29. ICMJE mandatory prospective registration as a condition of publication, effective 2005-07-01.
+
+## Defensive publication
+
+The specification [SPEC-PREREG.md](../SPEC-PREREG.md) is versioned
+`prereg-v1` and licensed CC0-1.0 so a third party can reimplement it
+without reading this repository's Go code.
+
+Intended deposit (to be completed on first public release of the spec):
+
+- **Title:** PLIMSOLL Pre-Registration and Attestation Specification, v1
+- **License:** CC0-1.0
+- **Git tag:** `v0.1.0-spec`
+- **DOI:** *not yet issued*
+- **Wayback archive:** *not yet captured* (requires a public URL)
+
+This heading is dated 2026-08-25. Replace the DOI and Wayback lines
+when the deposit and archive exist. Do not back-date them.
+

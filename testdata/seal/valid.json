@@ -1,0 +1,42 @@
+{
+  "plimsoll_version": "prereg-v1",
+  "created_at": "2026-08-25T00:00:00Z",
+  "subject": {
+    "name": "example-claim",
+    "system_under_test": {
+      "model": "example-model-id",
+      "prompt_sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "config_sha256": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    }
+  },
+  "dataset": {
+    "sha256": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "n": 100,
+    "sampling": "exhaustive",
+    "held_out": true
+  },
+  "harness": {
+    "tool": "example-harness",
+    "version": "1.0.0",
+    "config_sha256": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+  },
+  "metrics": [
+    {
+      "id": "acc",
+      "name": "accuracy",
+      "definition_uri": "https://example.invalid/metrics/accuracy",
+      "direction": "higher_is_better"
+    }
+  ],
+  "decision_rule": {
+    "expression": "acc.mean >= 0.82",
+    "primary_metric": "acc",
+    "threshold": "0.82",
+    "comparison": ">=",
+    "precision": 6
+  },
+  "exclusions": [],
+  "planned_attempts": 3,
+  "analysis_plan": "Report acc.mean against the sealed threshold. No post-hoc metric swap.",
+  "canon_version": "plimsoll-canon-v1"
+}

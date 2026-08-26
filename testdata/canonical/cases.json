@@ -1,0 +1,38 @@
+{
+  "pairs": [
+    {
+      "name": "crlf-vs-lf",
+      "left": "crlf.json",
+      "right": "lf.json",
+      "want_equal": true
+    },
+    {
+      "name": "nfc-vs-nfd",
+      "left": "nfc.json",
+      "right": "nfd.json",
+      "want_equal": true
+    },
+    {
+      "name": "key-order",
+      "left": "keys_ab.json",
+      "right": "keys_ba.json",
+      "want_equal": true
+    },
+    {
+      "name": "jcs-1-vs-1.0",
+      "left": "num_1.json",
+      "right": "num_1_0.json",
+      "want_equal": true,
+      "note": "RFC 8785 JCS serializes both 1 and 1.0 via ECMAScript Number.toString as 1. They hash identically."
+    },
+    {
+      "name": "zero-width-space",
+      "left": "zwsp.json",
+      "right": "no_zwsp.json",
+      "want_equal": false
+    }
+  ],
+  "nested": "nested5.json",
+  "dataset_rows": ["row_a.json", "row_b.json"],
+  "dataset_trailing_newline": ["row_a.json", "row_a_trailing_nl.json"]
+}
