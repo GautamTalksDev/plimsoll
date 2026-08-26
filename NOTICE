@@ -6,3 +6,7 @@ This product includes software developed as part of the PLIMSOLL project.
 The names "PLIMSOLL" and "The PLIMSOLL Authors" must not be used to
 endorse or promote products derived from this software without prior
 written permission. See the Apache License, Version 2.0, Section 6.
+
+This distribution includes wasm_exec.js from the Go programming language
+distribution, Copyright (c) 2009 The Go Authors, redistributed under a
+BSD 3-clause licence. See internal/site/verify/LICENSE.go-authors.
