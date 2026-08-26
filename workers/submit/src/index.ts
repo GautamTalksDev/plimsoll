@@ -134,8 +134,7 @@ async function handleSubmit(request: Request, env: Env): Promise<Response> {
     return text(502, "log dispatch failed");
   }
 
-  const sealHash = typeof top.seal_hash === "string" ? top.seal_hash : "";
-  const pathHash = sealHash.replace(/:/g, "%3A");
+  const pathHash = safeSealPath(top.seal_hash);
   const note =
     pathHash.length > 0
       ? `Appended within ~60s. Poll /seal/${pathHash} to confirm inclusion.`
@@ -143,6 +142,18 @@ async function handleSubmit(request: Request, env: Env): Promise<Response> {
 
   // Never 200: the entry is not in the log yet.
   return json(202, { status: "accepted", note });
+}
+
+/**
+ * seal_hash is attacker-controlled and is echoed back in the 202 note. Only
+ * echo it when it matches the digest grammar exactly; otherwise return "" so
+ * no submitter-supplied text ever reaches a client's terminal.
+ */
+export function safeSealPath(v: Json | undefined): string {
+  if (typeof v !== "string" || !/^sha256:[0-9a-f]{64}$/.test(v)) {
+    return "";
+  }
+  return v.replace(/:/g, "%3A");
 }
 
 /** Strict top-level allowlist; mirrors internal/payload.AssertSubmit. */
@@ -172,14 +183,23 @@ export function assertSubmitShape(top: Record<string, Json>): string | null {
   return "unrecognized submit shape";
 }
 
-/** Returns the first forbidden eval-data key name found at any depth. */
-export function findForbiddenKey(v: Json): string | null {
+/**
+ * Returns the first forbidden eval-data key name found at any depth, or the
+ * sentinel "__too_deep__" past MAX_DEPTH. Untrusted JSON must not be able to
+ * drive unbounded recursion, even under the body cap.
+ */
+export const MAX_DEPTH = 64;
+
+export function findForbiddenKey(v: Json, depth = 0): string | null {
+  if (depth > MAX_DEPTH) {
+    return "__too_deep__";
+  }
   if (v === null || typeof v !== "object") {
     return null;
   }
   if (Array.isArray(v)) {
     for (const item of v) {
-      const hit = findForbiddenKey(item);
+      const hit = findForbiddenKey(item, depth + 1);
       if (hit) return hit;
     }
     return null;
@@ -188,7 +208,7 @@ export function findForbiddenKey(v: Json): string | null {
     if (FORBIDDEN_KEYS.has(k.toLowerCase())) {
       return k;
     }
-    const hit = findForbiddenKey(child);
+    const hit = findForbiddenKey(child, depth + 1);
     if (hit) return hit;
   }
   return null;

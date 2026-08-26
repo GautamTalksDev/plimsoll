@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 import {
   assertSubmitShape,
   findForbiddenKey,
+  safeSealPath,
   type Json,
 } from "../src/index.ts";
 
@@ -69,5 +70,40 @@ describe("findForbiddenKey", () => {
       }),
       null,
     );
+  });
+});
+
+describe("hardening", () => {
+  it("rejects deeply nested objects instead of recursing without bound", () => {
+    let deep: Json = { leaf: true };
+    for (let i = 0; i < 200; i++) deep = { nest: deep };
+    assert.equal(findForbiddenKey(deep), "__too_deep__");
+  });
+
+  it("still finds a forbidden key within the depth limit", () => {
+    let deep: Json = { prompt: "x" };
+    for (let i = 0; i < 10; i++) deep = { nest: deep };
+    assert.equal(findForbiddenKey(deep), "prompt");
+  });
+});
+
+describe("safeSealPath", () => {
+  it("echoes a well-formed digest with the colon percent-encoded", () => {
+    const h = "sha256:" + "a".repeat(64);
+    assert.equal(safeSealPath(h), "sha256%3A" + "a".repeat(64));
+  });
+
+  it("returns empty for anything that is not a digest", () => {
+    for (const bad of [
+      "sha256:" + "A".repeat(64),
+      "sha256:" + "a".repeat(63),
+      "sha256:" + "a".repeat(64) + "\n\u001b[31mowned",
+      "../../etc/passwd",
+      "",
+      undefined,
+      42 as unknown as string,
+    ]) {
+      assert.equal(safeSealPath(bad as never), "");
+    }
   });
 });
