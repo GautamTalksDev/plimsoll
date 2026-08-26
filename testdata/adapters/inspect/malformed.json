@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "status": "success",
+  "eval": {
+    "task": "demo"
+  },
+  "samples": [
+    {
+      "id": 1,
+      "input": "secret input text",
+      "scores": {}
+    }
+  ]
+}

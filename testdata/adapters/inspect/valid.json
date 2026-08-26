@@ -1,0 +1,72 @@
+{
+  "version": 2,
+  "status": "success",
+  "eval": {
+    "task": "inspect_evals/gsm8k",
+    "model": "openai/gpt-4o",
+    "created": "2026-08-25T10:00:00Z"
+  },
+  "samples": [
+    {
+      "id": 101,
+      "epoch": 1,
+      "input": "Janet has 3 apples. She buys 2 more. How many?",
+      "target": "5",
+      "output": {
+        "completion": "Janet has 5 apples."
+      },
+      "scores": {
+        "match": {
+          "value": 1
+        },
+        "accuracy": {
+          "value": 1.0
+        }
+      }
+    },
+    {
+      "id": 102,
+      "epoch": 1,
+      "input": "What is 17 + 25?",
+      "target": "42",
+      "output": {
+        "completion": "42"
+      },
+      "scores": {
+        "match": {
+          "value": 1
+        },
+        "accuracy": {
+          "value": 1.0
+        }
+      }
+    },
+    {
+      "id": 103,
+      "epoch": 1,
+      "input": "Name the largest planet.",
+      "target": "Jupiter",
+      "output": {
+        "completion": "Saturn"
+      },
+      "scores": {
+        "match": {
+          "value": 0
+        },
+        "accuracy": {
+          "value": 0.0
+        }
+      }
+    }
+  ],
+  "results": {
+    "scores": [
+      {
+        "name": "accuracy",
+        "metrics": {
+          "mean": 0.6666666666666666
+        }
+      }
+    ]
+  }
+}

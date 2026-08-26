@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "results": {
+    "results": [
+      {
+        "testIdx": 0,
+        "promptIdx": 0,
+        "score": 1,
+        "namedScores": {
+          "accuracy": 1
+        }
+      }
+    ]
+  }
+}

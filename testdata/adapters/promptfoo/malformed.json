@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "results": {
+    "results": [
+      {
+        "testIdx": 0,
+        "promptIdx": 0,
+        "text": "response body"
+      }
+    ]
+  }
+}

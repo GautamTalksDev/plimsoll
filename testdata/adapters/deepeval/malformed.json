@@ -1,0 +1,11 @@
+{
+  "deepevalVersion": "1.2.0",
+  "testCases": [
+    {
+      "order": 0,
+      "name": "case-alpha",
+      "input": "prompt text",
+      "metricsData": []
+    }
+  ]
+}

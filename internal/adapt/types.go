@@ -12,5 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package adapt will hold result adapters (pure, no I/O).
 package adapt
+
+import "encoding/json"
+
+// MetricValues holds per-row metric values in their original string form.
+// Adapters map and extract only; they never compute aggregates.
+type MetricValues struct {
+	MetricID string
+	Raw      []string // ORIGINAL string representations, in row order
+	N        int
+}
+
+// ResultSet is the normalized harness output used by the decision engine.
+type ResultSet struct {
+	Harness    string
+	HarnessVer string
+	Metrics    map[string]MetricValues
+	RowDigest  string // digest over per-row identifiers only
+	Extra      json.RawMessage
+}

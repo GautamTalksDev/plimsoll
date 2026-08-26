@@ -1,0 +1,51 @@
+{
+  "version": 3,
+  "timestamp": "2026-08-25T12:00:00Z",
+  "results": {
+    "prompts": [
+      {
+        "id": "prompt-1",
+        "raw": "Summarize {{topic}}"
+      }
+    ],
+    "results": [
+      {
+        "id": "eval-row-0",
+        "testIdx": 0,
+        "promptIdx": 0,
+        "success": true,
+        "score": 1.0,
+        "namedScores": {
+          "contains_check": 1,
+          "similarity": 0.92
+        },
+        "text": "Paris is the capital of France.",
+        "vars": {
+          "topic": "France geography"
+        }
+      },
+      {
+        "id": "eval-row-1",
+        "testIdx": 1,
+        "promptIdx": 0,
+        "success": false,
+        "score": 0.0,
+        "namedScores": {
+          "contains_check": 0,
+          "similarity": 0.41
+        },
+        "text": "Berlin is in France.",
+        "vars": {
+          "topic": "European capitals"
+        }
+      }
+    ],
+    "stats": {
+      "successes": 1,
+      "failures": 1,
+      "tokenUsage": {
+        "total": 512
+      }
+    }
+  }
+}

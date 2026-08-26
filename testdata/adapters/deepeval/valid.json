@@ -1,0 +1,50 @@
+{
+  "deepevalVersion": "1.2.0",
+  "testCases": [
+    {
+      "order": 0,
+      "name": "case-alpha",
+      "input": "What is the capital of France?",
+      "actualOutput": "Paris is the capital.",
+      "metricsData": [
+        {
+          "name": "Answer Relevancy",
+          "score": 0.95,
+          "success": true
+        },
+        {
+          "name": "Faithfulness",
+          "score": 1.0,
+          "success": true
+        }
+      ]
+    },
+    {
+      "order": 1,
+      "name": "case-beta",
+      "input": "Explain quantum entanglement briefly.",
+      "actualOutput": "Particles can share correlated states.",
+      "metricsData": [
+        {
+          "name": "Answer Relevancy",
+          "score": 0.88,
+          "success": true
+        },
+        {
+          "name": "Faithfulness",
+          "score": 0.75,
+          "success": false
+        }
+      ]
+    }
+  ],
+  "metricsScores": [
+    {
+      "metric": "Answer Relevancy",
+      "score": 0.915,
+      "passes": 2,
+      "fails": 0
+    }
+  ],
+  "runDuration": 12.4
+}

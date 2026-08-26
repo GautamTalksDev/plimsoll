@@ -1,0 +1,30 @@
+{
+  "format": "plimsoll-generic-v1",
+  "harness_version": "1.0.0",
+  "notes": "baseline run",
+  "rows": [
+    {
+      "id": "row-001",
+      "metrics": {
+        "accuracy": "0.875",
+        "latency_ms": "42"
+      },
+      "prompt": "SECRET_PROMPT_ALPHA do not leak"
+    },
+    {
+      "id": "row-002",
+      "metrics": {
+        "accuracy": "1.0",
+        "latency_ms": "38"
+      },
+      "output": "SECRET_OUTPUT_BETA do not leak"
+    },
+    {
+      "id": "row-003",
+      "metrics": {
+        "accuracy": "0.5",
+        "latency_ms": "51"
+      }
+    }
+  ]
+}

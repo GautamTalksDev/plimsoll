@@ -1,0 +1,12 @@
+{
+  "format": "plimsoll-generic-v1",
+  "harness_version": "2.0.0",
+  "rows": [
+    {
+      "id": "row-001",
+      "metrics": {
+        "accuracy": "1"
+      }
+    }
+  ]
+}

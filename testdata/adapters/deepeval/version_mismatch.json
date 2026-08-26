@@ -1,0 +1,15 @@
+{
+  "deepevalVersion": "0.20.0",
+  "testCases": [
+    {
+      "order": 0,
+      "name": "case-alpha",
+      "metricsData": [
+        {
+          "name": "Answer Relevancy",
+          "score": 1
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "version": 3,
+  "status": "success",
+  "eval": {
+    "task": "demo"
+  },
+  "samples": [
+    {
+      "id": 1,
+      "scores": {
+        "match": {
+          "value": 1
+        }
+      }
+    }
+  ]
+}
