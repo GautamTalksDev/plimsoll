@@ -32,13 +32,22 @@ be closed before any third party is asked to verify against this log.
 | `/entries/index.json` | First page of entries (100 per page); further pages are `index-N.json` |
 | `/proof/inclusion/{idx}` | Inclusion proof + latest checkpoint |
 | `/proof/consistency/{old}-{new}` | Consistency proofs (see limitation below) |
-| `/seal/{urlsafe_hash}/index.json` | Seal record + attempts + verdicts |
-| `/seal/{urlsafe_hash}/badge.svg` | Badge (CP-10 semantics; labels XML-escaped) |
-| `/seal/{urlsafe_hash}/index.html` | Per-seal HTML (html/template escaped) |
+| `/seal/sha256-{hex}/index.json` | Seal record + attempts + verdicts |
+| `/seal/sha256-{hex}/badge.svg` | Badge (CP-10 semantics; labels XML-escaped) |
+| `/seal/sha256-{hex}/index.html` | Per-seal HTML (html/template escaped) |
 | `/key` | Log public key: PKIX PEM plus raw base64 Ed25519 |
 | `/index.html`, `/seals/`, `/spec/`, `/run-your-own/` | Static site (reuses `internal/site`) |
 | `/verify/` | Browser WASM verifier assets |
 | `/_headers` | Cloudflare Pages cache policy |
+**Path form.** Seal directories are named `sha256-{hex}`, not the canonical
+`sha256:{hex}`, and never contain percent-encoding. A static host decodes the
+request path once before matching a file, so a directory literally named
+`sha256%3A{hex}` is unreachable: the client asks for `sha256:{hex}`, the lookup
+misses, and the host serves its HTML fallback with **HTTP 200** rather than a
+404 — clients then hang parsing HTML as JSON. `logd` accepts `sha256-{hex}`,
+`sha256:{hex}` and the legacy `sha256%3A{hex}` on read, so previously published
+URLs keep working against a self-hosted log.
+
 | `/_redirects` | Exact-path rewrites for a few HTML routes |
 
 `urlsafe_hash` is the seal digest with `:` percent-encoded (`site.SealPath`),

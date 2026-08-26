@@ -184,7 +184,7 @@ func TestBadgeShowsAttemptCount(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	res, err := http.Get(srv.URL + "/seal/" + strings.ReplaceAll(sealHash, ":", "%3A") + "/badge.svg")
+	res, err := http.Get(srv.URL + "/seal/" + site.SealDir(sealHash) + "/badge.svg")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -224,7 +224,7 @@ func TestSiteEscapesScriptSubject(t *testing.T) {
 	if _, err := lc.PublishSeal(ss, sealHash, pub); err != nil {
 		t.Fatal(err)
 	}
-	res, err := http.Get(srv.URL + "/seal/" + strings.ReplaceAll(sealHash, ":", "%3A"))
+	res, err := http.Get(srv.URL + "/seal/" + site.SealDir(sealHash))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -304,4 +304,48 @@ func bytesIndex(b, sub []byte) int {
 		}
 	}
 	return -1
+}
+
+// Self-hosted logd must keep serving the legacy percent-encoded path form, so
+// URLs published before the switch to sha256-<hex> do not break. net/http
+// decodes %3A to ':' before the handler sees it, and decodeSealHash accepts
+// both forms.
+func TestServeSealAcceptsLegacyPercentEncodedPath(t *testing.T) {
+	priv, pub := testKey(t)
+	dir := t.TempDir()
+	l, err := log.Open(filepath.Join(dir, "l.sqlite"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	spec := filepath.Join(dir, "spec.md")
+	if err := os.WriteFile(spec, []byte("# Spec\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	siteRenderer, err := site.New(l, pub, spec, "http://test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, srv := startLogd(t, logd.Config{
+		Log: l, PrivKey: priv, PublicKey: pub, Site: siteRenderer,
+	})
+	lc := logclient.NewHTTP(srv.URL, priv, srv.Client())
+	ss, sealHash := testSignedSeal(t, priv, "legacy-path")
+	if _, err := lc.PublishSeal(ss, sealHash, pub); err != nil {
+		t.Fatal(err)
+	}
+	for name, seg := range map[string]string{
+		"legacy":    strings.ReplaceAll(sealHash, ":", "%3A"),
+		"canonical": sealHash,
+		"current":   site.SealDir(sealHash),
+	} {
+		res, err := http.Get(srv.URL + "/seal/" + seg)
+		if err != nil {
+			t.Fatalf("%s: %v", name, err)
+		}
+		code := res.StatusCode
+		res.Body.Close()
+		if code != http.StatusOK {
+			t.Errorf("%s form returned %d, want 200", name, code)
+		}
+	}
 }

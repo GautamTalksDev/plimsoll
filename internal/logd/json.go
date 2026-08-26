@@ -23,6 +23,7 @@ import (
 
 	"github.com/GautamTalksDev/plimsoll/internal/log"
 	"github.com/GautamTalksDev/plimsoll/internal/sealfile"
+	"github.com/GautamTalksDev/plimsoll/internal/site"
 )
 
 func writeJSON(w http.ResponseWriter, v any) {
@@ -39,7 +40,10 @@ func decodeSealHash(s string) (string, error) {
 	if s == "" {
 		return "", errBadSealHash
 	}
-	return s, nil
+	// Accept both the static-tree directory form (sha256-<hex>) and the
+	// canonical digest (sha256:<hex>). net/http has already decoded any
+	// percent-encoding by this point, so %3A arrives here as a colon.
+	return site.ParseSealDir(s), nil
 }
 
 func wantsHTML(r *http.Request) bool {

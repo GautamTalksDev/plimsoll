@@ -75,7 +75,22 @@ func (r *Renderer) Mount(mux *http.ServeMux, l *log.Log, pub ed25519.PublicKey) 
 // SealDir returns the filesystem- and URL-safe directory name for a seal digest.
 // ':' is percent-encoded so the name is valid on Windows and in static URLs.
 func SealDir(hash string) string {
-	return strings.ReplaceAll(hash, ":", "%3A")
+	return strings.ReplaceAll(hash, ":", "-")
+}
+
+// ParseSealDir accepts either the current directory form (sha256-<hex>) or the
+// canonical digest form (sha256:<hex>) and returns the canonical digest.
+//
+// The directory form must contain no percent-encoding. A static host decodes
+// the request path once before matching a file, so a directory literally named
+// "sha256%3A<hex>" is unreachable: the client asks for "sha256:<hex>", the
+// lookup misses, and the host serves its HTML fallback with HTTP 200 rather
+// than a 404. Clients then hang parsing HTML as JSON instead of failing.
+func ParseSealDir(seg string) string {
+	if strings.HasPrefix(seg, "sha256-") {
+		return "sha256:" + strings.TrimPrefix(seg, "sha256-")
+	}
+	return seg
 }
 
 // SealPath returns the URL path for a seal digest ('/' + seal/{urlsafe_hash}).

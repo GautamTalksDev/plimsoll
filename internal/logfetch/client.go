@@ -389,6 +389,11 @@ func urlQuery(s string) string {
 	return strings.ReplaceAll(s, ":", "%3A")
 }
 
+// urlPath builds a path segment for a digest. It must not percent-encode: a
+// static host decodes the request path once before matching a file, so a
+// directory literally named "sha256%3A<hex>" is unreachable and the host
+// serves an HTML fallback with HTTP 200 instead of a 404. urlQuery keeps %3A
+// because query strings are not path-matched.
 func urlPath(s string) string {
-	return strings.ReplaceAll(s, ":", "%3A")
+	return strings.ReplaceAll(s, ":", "-")
 }
