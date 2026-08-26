@@ -9,8 +9,8 @@
     "test": "node --experimental-strip-types --test test/allowlist.test.ts"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "4.20250821.0",
+    "@cloudflare/workers-types": "^5.20260826.1",
     "typescript": "5.9.2",
-    "wrangler": "4.32.0"
+    "wrangler": "^4.126.0"
   }
 }
