@@ -73,7 +73,6 @@ func (s *Server) routes() {
 	s.mux.HandleFunc("/proof/consistency", s.handleConsistencyProof)
 	s.mux.HandleFunc("/submit", s.handleSubmit)
 	s.mux.HandleFunc("/seal/", s.handleSealPath)
-	s.mountLegacyV1()
 	if s.cfg.Site != nil {
 		s.cfg.Site.Mount(s.mux, s.cfg.Log, s.cfg.PublicKey)
 	}
