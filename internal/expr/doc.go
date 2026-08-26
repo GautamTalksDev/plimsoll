@@ -12,5 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package seal will hold preregistration schema, seal creation, and signing.
-package seal
+// Package expr parses prereg-v1 decision_rule.expression strings.
+// Evaluation lives in internal/decide; seal validation imports this
+// package to avoid an import cycle.
+package expr
