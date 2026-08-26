@@ -255,27 +255,171 @@ func (r *Renderer) SealPage(sealHash string) (map[string]any, error) {
 	}, nil
 }
 
+// renderMarkdownSafe converts a small, fixed subset of Markdown to HTML.
+//
+// Every line is HTML-escaped BEFORE any tag is added, and inline formatting is
+// applied only to already-escaped text, so no input can introduce markup. It
+// is deliberately not a general Markdown implementation: a full parser is a
+// large dependency and a large attack surface for the single job of rendering
+// one CC0 specification file.
 func renderMarkdownSafe(md string) template.HTML {
 	var b strings.Builder
-	for _, line := range strings.Split(md, "\n") {
-		esc := template.HTMLEscapeString(line)
-		switch {
-		case strings.HasPrefix(line, "### "):
-			b.WriteString("<h3>" + esc[4:] + "</h3>")
-		case strings.HasPrefix(line, "## "):
-			b.WriteString("<h2>" + esc[3:] + "</h2>")
-		case strings.HasPrefix(line, "# "):
-			b.WriteString("<h1>" + esc[2:] + "</h1>")
-		case strings.HasPrefix(line, "- "):
-			b.WriteString("<li>" + esc[2:] + "</li>")
-		default:
-			if strings.TrimSpace(line) == "" {
-				continue
-			}
-			b.WriteString("<p>" + esc + "</p>")
+	inCode := false
+	inList := false
+	inTable := false
+
+	closeList := func() {
+		if inList {
+			b.WriteString("</ul>")
+			inList = false
 		}
 	}
-	return template.HTML(b.String()) //nolint:gosec // G203 -- every line is HTML-escaped before tags are added
+	closeTable := func() {
+		if inTable {
+			b.WriteString("</tbody></table>")
+			inTable = false
+		}
+	}
+
+	for _, line := range strings.Split(md, "\n") {
+		trimmed := strings.TrimSpace(line)
+
+		if strings.HasPrefix(trimmed, "```") {
+			closeList()
+			closeTable()
+			if inCode {
+				b.WriteString("</code></pre>")
+			} else {
+				b.WriteString("<pre><code>")
+			}
+			inCode = !inCode
+			continue
+		}
+		if inCode {
+			b.WriteString(template.HTMLEscapeString(line) + "\n")
+			continue
+		}
+
+		esc := template.HTMLEscapeString(line)
+
+		// A table separator row (|---|---|) opens the body; it prints nothing.
+		if isTableSeparator(trimmed) && inTable {
+			continue
+		}
+		if strings.HasPrefix(trimmed, "|") && strings.HasSuffix(trimmed, "|") {
+			closeList()
+			cells := splitTableRow(trimmed)
+			if !inTable {
+				b.WriteString("<table><thead><tr>")
+				for _, c := range cells {
+					b.WriteString("<th>" + inlineMarkdown(template.HTMLEscapeString(c)) + "</th>")
+				}
+				b.WriteString("</tr></thead><tbody>")
+				inTable = true
+				continue
+			}
+			b.WriteString("<tr>")
+			for _, c := range cells {
+				b.WriteString("<td>" + inlineMarkdown(template.HTMLEscapeString(c)) + "</td>")
+			}
+			b.WriteString("</tr>")
+			continue
+		}
+		closeTable()
+
+		switch {
+		case strings.HasPrefix(line, "#### "):
+			closeList()
+			b.WriteString("<h4>" + inlineMarkdown(esc[5:]) + "</h4>")
+		case strings.HasPrefix(line, "### "):
+			closeList()
+			b.WriteString("<h3>" + inlineMarkdown(esc[4:]) + "</h3>")
+		case strings.HasPrefix(line, "## "):
+			closeList()
+			b.WriteString("<h2>" + inlineMarkdown(esc[3:]) + "</h2>")
+		case strings.HasPrefix(line, "# "):
+			closeList()
+			b.WriteString("<h1>" + inlineMarkdown(esc[2:]) + "</h1>")
+		case trimmed == "---":
+			closeList()
+			b.WriteString("<hr>")
+		case strings.HasPrefix(trimmed, "- ") || strings.HasPrefix(trimmed, "* "):
+			if !inList {
+				b.WriteString("<ul>")
+				inList = true
+			}
+			item := strings.TrimSpace(esc)
+			b.WriteString("<li>" + inlineMarkdown(item[2:]) + "</li>")
+		default:
+			if trimmed == "" {
+				closeList()
+				continue
+			}
+			closeList()
+			b.WriteString("<p>" + inlineMarkdown(esc) + "</p>")
+		}
+	}
+	if inCode {
+		b.WriteString("</code></pre>")
+	}
+	closeList()
+	closeTable()
+	return template.HTML(b.String()) //nolint:gosec // G203 -- input is escaped before any tag is added
+}
+
+// inlineMarkdown applies bold and inline code to text that is ALREADY
+// HTML-escaped. It must never be called on raw input.
+func inlineMarkdown(escaped string) string {
+	escaped = wrapPairs(escaped, "**", "<strong>", "</strong>")
+	escaped = wrapPairs(escaped, "`", "<code>", "</code>")
+	return escaped
+}
+
+// wrapPairs replaces matched pairs of a delimiter with open/close tags. An
+// unmatched trailing delimiter is left as literal text.
+func wrapPairs(s, delim, open, close string) string {
+	var b strings.Builder
+	rest := s
+	for {
+		i := strings.Index(rest, delim)
+		if i < 0 {
+			b.WriteString(rest)
+			return b.String()
+		}
+		j := strings.Index(rest[i+len(delim):], delim)
+		if j < 0 {
+			b.WriteString(rest)
+			return b.String()
+		}
+		b.WriteString(rest[:i])
+		b.WriteString(open)
+		b.WriteString(rest[i+len(delim) : i+len(delim)+j])
+		b.WriteString(close)
+		rest = rest[i+len(delim)+j+len(delim):]
+	}
+}
+
+func isTableSeparator(line string) bool {
+	if !strings.HasPrefix(line, "|") {
+		return false
+	}
+	for _, r := range line {
+		if r != '|' && r != '-' && r != ':' && r != ' ' {
+			return false
+		}
+	}
+	return strings.Contains(line, "-")
+}
+
+func splitTableRow(line string) []string {
+	line = strings.TrimPrefix(line, "|")
+	line = strings.TrimSuffix(line, "|")
+	parts := strings.Split(line, "|")
+	out := make([]string, 0, len(parts))
+	for _, p := range parts {
+		out = append(out, strings.TrimSpace(p))
+	}
+	return out
 }
 
 const pageT = `<!DOCTYPE html>

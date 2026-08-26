@@ -54,6 +54,12 @@ pre{padding:1rem; border-radius:6px; overflow-x:auto; border:1px solid var(--lin
 pre code{background:none; padding:0; word-break:normal}
 td code{font-size:12px}
 .empty{color:var(--muted); font-style:italic}
+h4{font-size:1rem; font-weight:500; margin:1.5rem 0 .5rem; color:var(--muted)}
+hr{border:0; border-top:1px solid var(--line); margin:2rem 0}
+ul{padding-left:1.25rem; margin:0 0 1rem}
+li{margin:.25rem 0}
+strong{font-weight:600}
+table th{white-space:nowrap}
 footer{
   margin-top:4rem; padding-top:1.5rem; border-top:1px solid var(--line);
   color:var(--muted); font-size:13px;
