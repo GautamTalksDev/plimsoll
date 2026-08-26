@@ -53,6 +53,41 @@ jobs:
           version: v2.13.1
           args: --timeout=5m
 
+  govulncheck:
+    name: govulncheck
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # govulncheck needs a newer toolchain than the 1.23 the module targets.
+      # It reports only vulnerabilities reachable from this code, unlike a
+      # manifest scan, so a failure here is a real finding rather than noise.
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: "stable"
+
+      - name: Run govulncheck
+        run: |
+          set -euo pipefail
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          "$(go env GOPATH)/bin/govulncheck" ./...
+
+      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        with:
+          node-version: "22"
+
+      # The submit Worker's dependencies are development-only, but they run on
+      # a maintainer machine with a deploy token, so a compromise there is a
+      # supply-chain compromise of the log.
+      - name: npm audit (submit worker)
+        working-directory: workers/submit
+        run: |
+          set -euo pipefail
+          npm ci
+          npm audit --audit-level=high
+
   python:
     name: python
     runs-on: ubuntu-latest
