@@ -12,5 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package canonical will hold canonicalization and hashing (pure, no I/O).
+// Package canonical is the trust-path canonicalizer. Every later verdict
+// depends on these bytes. The package is pure: no I/O, no network, and it
+// never transmits rows, datasets, models, prompts, or outputs.
 package canonical
+
+const (
+	// CanonVersionPrefix is prepended to RFC 8785 JCS output.
+	// Distinct from DatasetVersionPrefix; do not mix them.
+	CanonVersionPrefix = "plimsoll-canon-v1\n"
+
+	// DatasetVersionPrefix is prepended to a sorted multiset of
+	// canonical rows. Distinct from CanonVersionPrefix.
+	DatasetVersionPrefix = "plimsoll-dataset-v1\n"
+
+	// MaxInputBytes is the exclusive upper bound on a single JSON
+	// document passed to Canonicalize. Inputs larger than this are
+	// rejected before parse.
+	MaxInputBytes = 1 << 20
+)
