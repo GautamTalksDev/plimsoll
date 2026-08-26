@@ -132,16 +132,30 @@ analysis_plan: "Single run. No re-runs. Failure is reported as failure."
 Seal it, run your eval, attest:
 
 ```bash
-plimsoll seal --file prereg.yaml --publish
-# -> support-agent-quality.seal.json, with an inclusion proof
+# Public log appends asynchronously (~60 seconds). Use --wait in CI.
+export PLIMSOLL_LOG_URL=https://plimsoll.gautamkhosla.com
+
+plimsoll seal --file prereg.yaml --publish --log-url "$PLIMSOLL_LOG_URL" --wait
+# -> support-agent-quality.seal.json, with a real log index and inclusion proof
 
 deepeval test run tests/            # your eval, your tool, your machine
 
 plimsoll attest --seal support-agent-quality.seal.json \
-                --results .deepeval-cache.json --publish
+                --results .deepeval-cache.json \
+                --publish --log-url "$PLIMSOLL_LOG_URL" --wait
 ```
 
-Output:
+Without `--wait`, `--publish` returns as soon as the log accepts the submit.
+The entry is **not** queryable yet. The CLI says so:
+
+```
+Submitted. The log appends within about a minute.
+Run: plimsoll verify <file> --log <url>   to confirm inclusion.
+```
+
+Or poll explicitly: `plimsoll await --seal sha256:… --log "$PLIMSOLL_LOG_URL"`.
+
+Output (with `--wait`):
 
 ```
 PASS   acc.mean >= 0.82 AND acc.p10 >= 0.60
@@ -150,18 +164,17 @@ PASS   acc.mean >= 0.82 AND acc.p10 >= 0.60
   acc.p10    0.612  >=  0.60   ok
 
 Attempt 1 of this seal.
-Published: sha256:9f2c...  https://plimsoll.dev/seal/sha256:9f2c...
 ```
 
-Exit codes: `0` PASS, `1` FAIL, `2` INVALID, `3` operational error. Drop it in CI and it gates a release.
+Exit codes: `0` PASS, `1` FAIL, `2` INVALID, `3` operational error, `4` await timeout. Drop it in CI and it gates a release.
 
 Anyone can now check your work:
 
 ```bash
-plimsoll verify support-agent-quality.attest.json --log https://plimsoll.dev
+plimsoll verify support-agent-quality.attest.json --log https://plimsoll.gautamkhosla.com
 ```
 
-Or they can open [plimsoll.dev/verify](https://plimsoll.dev/verify), paste the file, and read the answer. No install, no account, and the file never leaves their browser.
+Or they can open [plimsoll.gautamkhosla.com/verify](https://plimsoll.gautamkhosla.com/verify), paste the file, and read the answer. No install, no account, and the file never leaves their browser.
 
 Longer walkthroughs for each harness are in [docs/QUICKSTART.md](docs/QUICKSTART.md).
 
@@ -224,8 +237,10 @@ V3 deserves a note. Your own signature on a timestamp proves nothing, because yo
 
 ```
 cmd/
-  plimsoll/          the CLI: seal, attest, verify, supersede, evidence
-  plimsolld/         the public log server
+  plimsoll/          the CLI: seal, attest, await, verify, verify-log, supersede, evidence
+  plimsolld/         reference log server (self-host; not the public CDN log)
+  plimsoll-static/   builds a static file tree from log.sqlite for CDN hosting
+  plimsoll-append/   Action trust-gate: validate + append + sign checkpoint
   verifywasm/        the browser verifier, compiled to WASM
 
 internal/
@@ -236,11 +251,19 @@ internal/
   decide/            the decision engine. applies the sealed rule
   log/               SQLite-backed append-only Merkle log
   logmerkle/         Merkle math, split out so WASM can use it without SQLite
-  logd/              the public read API and /submit
+  logd/              the public read API and /submit (reference server)
+  logappend/         strict submit validation used by plimsoll-append
+  staticlog/         deterministic static tree generator used by plimsoll-static
   logserver/         a second, independent server used to prove Rule 9 in tests
   verify/            the nine checks, offline-capable
   evidence/          evidence packs, deterministic PDF output
   site/              static site and the browser verifier assets
+
+scaffold/
+  plimsoll-log/      copy this to GautamTalksDev/plimsoll-log (git-backed public log)
+
+workers/
+  submit/            Cloudflare Worker for POST /submit (shape check only)
 
 SPEC-PREREG.md       the specification. CC0. the source of truth.
 docs/
@@ -250,6 +273,10 @@ docs/
   COMPLIANCE-MAPPING.md
   QUICKSTART.md
   GENERIC-FORMAT.md  use PLIMSOLL with a harness we do not have an adapter for
+  STATIC-LOG.md      how the CDN static tree maps to every logd read endpoint
+  SUCCESSION.md      who holds the log signing key and what happens if it stops
+  MIRRORING.md       clone the log repo and prove the operator has not equivocated
+  CHECKPOINTS.md     build ledger (CP-10 vs CP-10b for the public log)
 ```
 
 A few of these look redundant and are not. `logmerkle` is separate from `log` because the WASM verifier needs Merkle arithmetic and cannot link SQLite. `logserver` is a deliberately separate implementation that exists so the test suite can prove verification works against a log that is not ours. `internal/log/stub.go` is an empty type behind a `//go:build js` tag for the same WASM reason.
@@ -288,9 +315,24 @@ plimsolld -addr :8080 \
           -base-url https://log.example.com
 ```
 
+`plimsolld` remains the reference implementation for anyone who wants to run their own log. It is covered by tests and ships in releases. It is **not** what operates the public Plimsoll Log for v1.
+
+The public log is the CP-10b serverless path: git (`GautamTalksDev/plimsoll-log`) + `plimsoll-static` + Cloudflare Pages/Worker (see [docs/STATIC-LOG.md](docs/STATIC-LOG.md), [docs/MIRRORING.md](docs/MIRRORING.md)). Key custody and succession are in [docs/SUCCESSION.md](docs/SUCCESSION.md).
+
 Read endpoints: `/checkpoint`, `/entries`, `/proof/inclusion`, `/proof/consistency`, `/seal/{hash}`, `/seal/{hash}/badge.svg`. One write endpoint: `/submit`, which accepts a signed seal or attestation and rejects any payload containing a field outside the published schema. That allowlist is enforced server-side, which is how the "we never receive your data" promise stays true even if a client is buggy or hostile.
 
 Publish your public key. Point verifiers at your URL. That is the whole operation.
+
+### Cost of the public log
+
+| Item | Monthly |
+| --- | --- |
+| Cloudflare Pages | $0, unlimited bandwidth |
+| Cloudflare Workers | $0, 100k req/day |
+| GitHub Actions, public repo | $0 |
+| GitHub storage for the log | $0 until ~1 GB |
+| Domain | $0, subdomain of a domain you own |
+| **Total** | **$0** |
 
 ---
 
@@ -341,7 +383,7 @@ Notably, Certificate Transparency was not built by a Certificate Authority. A ve
 
 Current security guidance tells organizations to avoid depending on single-maintainer projects for core functions, and that guidance is correct. So rather than asking you to trust me:
 
-- **The log is auditable by anyone.** If history is rewritten, `plimsoll verify` detects it. Try it: edit the SQLite file by hand and watch verification fail.
+- **The log is auditable by anyone.** Clone [plimsoll-log](https://github.com/GautamTalksDev/plimsoll-log) and run `plimsoll verify-log --dir ./plimsoll-log` (see [docs/MIRRORING.md](docs/MIRRORING.md)). Hand-edit an entry and the check fails.
 - **Releases are signed** with cosign keyless via Sigstore, published with SHA256SUMS and SLSA build provenance. You can verify the binary matches this source.
 - **The dependency surface is tiny** and every addition is deliberate.
 - **The spec is CC0.** If this project is abandoned, someone else can implement it cleanly, and existing logs remain verifiable.

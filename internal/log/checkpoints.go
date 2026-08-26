@@ -21,6 +21,58 @@ import (
 	"fmt"
 )
 
+// AllCheckpoints returns every stored signed tree head row, ordered by
+// tree_size then timestamp. Duplicate sizes (if any) are all included.
+func (l *Log) AllCheckpoints() ([]Checkpoint, error) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	rows, err := l.db.Query(`
+		SELECT tree_size, root_hash, timestamp, signature
+		FROM checkpoints
+		ORDER BY tree_size ASC, timestamp ASC`)
+	if err != nil {
+		return nil, fmt.Errorf("log: list checkpoints: %w", err)
+	}
+	defer rows.Close()
+	var out []Checkpoint
+	for rows.Next() {
+		var cp Checkpoint
+		if err := rows.Scan(&cp.TreeSize, &cp.RootHash, &cp.Timestamp, &cp.Signature); err != nil {
+			return nil, fmt.Errorf("log: scan checkpoint: %w", err)
+		}
+		out = append(out, cp)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	if out == nil {
+		out = []Checkpoint{}
+	}
+	return out, nil
+}
+
+// Checkpoints returns every stored signed tree head, one per tree_size
+// (latest timestamp wins if several exist for the same size), ordered by size.
+func (l *Log) Checkpoints() ([]Checkpoint, error) {
+	all, err := l.AllCheckpoints()
+	if err != nil {
+		return nil, err
+	}
+	bySize := make(map[int64]Checkpoint)
+	var order []int64
+	for _, cp := range all {
+		if _, seen := bySize[cp.TreeSize]; !seen {
+			order = append(order, cp.TreeSize)
+		}
+		bySize[cp.TreeSize] = cp
+	}
+	out := make([]Checkpoint, 0, len(order))
+	for _, sz := range order {
+		out = append(out, bySize[sz])
+	}
+	return out, nil
+}
+
 // LatestCheckpoint returns the most recently stored signed tree head.
 func (l *Log) LatestCheckpoint() (Checkpoint, error) {
 	l.mu.Lock()

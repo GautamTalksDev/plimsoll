@@ -19,8 +19,8 @@ linters:
       # Tests intentionally exec binaries, write fixtures, and ignore some errors.
       - path: _test\.go
         linters: [errcheck, gosec]
-      # The CLI opens caller-chosen paths by design.
-      - path: ^(cmd/plimsoll|internal/(datasetload|sealfile|keys|evidence))/
+	# The CLI and static generator open caller-chosen paths by design.
+      - path: ^(cmd/plimsoll|cmd/plimsoll-static|cmd/plimsoll-append|internal/(datasetload|sealfile|keys|evidence|staticlog|logappend))/
         text: "G304"
         linters: [gosec]
 

@@ -39,3 +39,14 @@ __pycache__/
 *.egg-info/
 build/
 dist/
+
+# Cloudflare Worker (local)
+workers/**/node_modules/
+workers/**/.wrangler/
+workers/**/.dev.vars
+
+# Local test logs. The live public log lives in GautamTalksDev/plimsoll-log.
+/log.sqlite
+/log.sqlite-wal
+/log.sqlite-shm
+/log.sqlite-journal

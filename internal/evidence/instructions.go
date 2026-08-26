@@ -15,7 +15,7 @@
 package evidence
 
 // DefaultBrowserVerifierURL is the public browser-based verifier.
-const DefaultBrowserVerifierURL = "https://plimsoll.dev/verify"
+const DefaultBrowserVerifierURL = "https://plimsoll.gautamkhosla.com/verify"
 
 // Instructions returns steps a non-user can follow to reproduce verification.
 func Instructions(logURL, browserVerifierURL string) []string {

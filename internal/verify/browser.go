@@ -31,7 +31,7 @@ import (
 const AttestEnvelopeVersion = "plimsoll-attest-v1"
 
 // DefaultVerifierURL is the public browser verifier base path.
-const DefaultVerifierURL = "https://plimsoll.dev/verify"
+const DefaultVerifierURL = "https://plimsoll.gautamkhosla.com/verify"
 
 // AttestEnvelope is a published attestation with embedded log proofs (one checkpoint fetch for V9).
 type AttestEnvelope struct {

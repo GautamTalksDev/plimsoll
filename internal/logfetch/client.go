@@ -122,11 +122,14 @@ type EntryProofResponse struct {
 
 // EntryInclusionProof fetches a Merkle inclusion proof for log index idx.
 func (c *Client) EntryInclusionProof(idx int64) (*EntryProofResponse, error) {
-	b, err := c.get(fmt.Sprintf("/proof/inclusion?idx=%d", idx))
+	b, err := c.get(fmt.Sprintf("/proof/inclusion/%d", idx))
 	if err != nil {
-		b, err = c.get(fmt.Sprintf("/v1/entries/%d/inclusion-proof", idx))
+		b, err = c.get(fmt.Sprintf("/proof/inclusion?idx=%d", idx))
 		if err != nil {
-			return nil, err
+			b, err = c.get(fmt.Sprintf("/v1/entries/%d/inclusion-proof", idx))
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	return parseInclusionProof(b)
@@ -181,38 +184,49 @@ type SealResponse struct {
 
 // Seal fetches a seal row by seal_hash.
 func (c *Client) Seal(sealHash string) (*SealResponse, error) {
-	b, err := c.get("/seal/" + urlPath(sealHash))
+	b, err := c.get("/seal/" + urlPath(sealHash) + "/index.json")
 	if err != nil {
-		b, err = c.get("/v1/seal?seal_hash=" + urlQuery(sealHash))
+		b, err = c.get("/seal/" + urlPath(sealHash))
 		if err != nil {
-			return nil, err
+			b, err = c.get("/v1/seal?seal_hash=" + urlQuery(sealHash))
+			if err != nil {
+				return nil, err
+			}
+			return parseSealLegacy(b)
 		}
-		var legacy struct {
-			Seal struct {
-				Idx          int64  `json:"index"`
-				SealHash     string `json:"seal_hash"`
-				CanonicalB64 string `json:"canonical_b64"`
-				Signature    string `json:"signature_b64"`
-				PublicKey    string `json:"public_key_b64"`
-				SubmittedAt  int64  `json:"submitted_at"`
-				Supersedes   string `json:"supersedes"`
-				LeafHash     string `json:"leaf_hash"`
-			} `json:"seal"`
-		}
-		if err := json.Unmarshal(b, &legacy); err != nil {
-			return nil, err
-		}
-		canonical, err := base64.StdEncoding.DecodeString(legacy.Seal.CanonicalB64)
-		if err != nil {
-			return nil, err
-		}
-		return &SealResponse{
-			Idx: legacy.Seal.Idx, SealHash: legacy.Seal.SealHash, Canonical: canonical,
-			Signature: legacy.Seal.Signature, PublicKey: legacy.Seal.PublicKey,
-			SubmittedAt: legacy.Seal.SubmittedAt, Supersedes: legacy.Seal.Supersedes,
-			LeafHash: legacy.Seal.LeafHash,
-		}, nil
 	}
+	return parseSealJSON(b)
+}
+
+func parseSealLegacy(b []byte) (*SealResponse, error) {
+	var legacy struct {
+		Seal struct {
+			Idx          int64  `json:"index"`
+			SealHash     string `json:"seal_hash"`
+			CanonicalB64 string `json:"canonical_b64"`
+			Signature    string `json:"signature_b64"`
+			PublicKey    string `json:"public_key_b64"`
+			SubmittedAt  int64  `json:"submitted_at"`
+			Supersedes   string `json:"supersedes"`
+			LeafHash     string `json:"leaf_hash"`
+		} `json:"seal"`
+	}
+	if err := json.Unmarshal(b, &legacy); err != nil {
+		return nil, err
+	}
+	canonical, err := base64.StdEncoding.DecodeString(legacy.Seal.CanonicalB64)
+	if err != nil {
+		return nil, err
+	}
+	return &SealResponse{
+		Idx: legacy.Seal.Idx, SealHash: legacy.Seal.SealHash, Canonical: canonical,
+		Signature: legacy.Seal.Signature, PublicKey: legacy.Seal.PublicKey,
+		SubmittedAt: legacy.Seal.SubmittedAt, Supersedes: legacy.Seal.Supersedes,
+		LeafHash: legacy.Seal.LeafHash,
+	}, nil
+}
+
+func parseSealJSON(b []byte) (*SealResponse, error) {
 	var raw struct {
 		Seal struct {
 			Idx          int64  `json:"index"`
@@ -242,7 +256,15 @@ func (c *Client) Seal(sealHash string) (*SealResponse, error) {
 
 // EntryAt fetches one log entry by global Merkle index.
 func (c *Client) EntryAt(idx int64) (*log.Entry, error) {
-	b, err := c.get(fmt.Sprintf("/entries?from=%d&to=%d", idx, idx+1))
+	b, err := c.get(fmt.Sprintf("/entries/%d", idx))
+	if err == nil {
+		var e log.Entry
+		if err := json.Unmarshal(b, &e); err != nil {
+			return nil, err
+		}
+		return &e, nil
+	}
+	b, err = c.get(fmt.Sprintf("/entries?from=%d&to=%d", idx, idx+1))
 	if err != nil {
 		return nil, err
 	}
@@ -260,7 +282,10 @@ func (c *Client) EntryAt(idx int64) (*log.Entry, error) {
 
 // Attempts lists attestation attempts for a seal.
 func (c *Client) Attempts(sealHash string) ([]log.Attempt, error) {
-	b, err := c.get("/seal/" + urlPath(sealHash))
+	b, err := c.get("/seal/" + urlPath(sealHash) + "/index.json")
+	if err != nil {
+		b, err = c.get("/seal/" + urlPath(sealHash))
+	}
 	if err == nil {
 		var raw struct {
 			Attempts []log.Attempt `json:"attempts"`
@@ -294,11 +319,14 @@ type ConsistencyResponse struct {
 
 // Consistency fetches a consistency proof from oldSize to newSize.
 func (c *Client) Consistency(from, to int64) (*ConsistencyResponse, error) {
-	b, err := c.get(fmt.Sprintf("/proof/consistency?old=%d&new=%d", from, to))
+	b, err := c.get(fmt.Sprintf("/proof/consistency/%d-%d", from, to))
 	if err != nil {
-		b, err = c.get(fmt.Sprintf("/v1/consistency?from=%d&to=%d", from, to))
+		b, err = c.get(fmt.Sprintf("/proof/consistency?old=%d&new=%d", from, to))
 		if err != nil {
-			return nil, err
+			b, err = c.get(fmt.Sprintf("/v1/consistency?from=%d&to=%d", from, to))
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	return parseConsistency(b)

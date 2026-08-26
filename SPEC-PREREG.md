@@ -96,7 +96,7 @@ another (see §9).
 ```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://plimsoll.dev/spec/prereg-v1/seal.json",
+  "$id": "https://plimsoll.gautamkhosla.com/spec/prereg-v1/seal.json",
   "title": "PLIMSOLL seal (prereg-v1)",
   "type": "object",
   "additionalProperties": false,
@@ -473,7 +473,7 @@ names a seal by digest. It MUST NOT contain an attempt number.
 ```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://plimsoll.dev/spec/prereg-v1/attestation.json",
+  "$id": "https://plimsoll.gautamkhosla.com/spec/prereg-v1/attestation.json",
   "title": "PLIMSOLL attestation (prereg-v1)",
   "type": "object",
   "additionalProperties": false,
@@ -672,6 +672,24 @@ Nearest-rank: `n=2`, `p=50` → rank `1`.
 
 Decimal (precision 6): `0.82` equals `0.8200000000000001`; `0.82` does
 not equal `0.821`.
+
+---
+
+## 13a. Transport and deployment (informative)
+
+`prereg-v1` does **not** define HTTP URL shapes or hosting. Object schemas
+(§4, §7), the attempt ledger (§8), and the transmission constraint (§10)
+are unchanged.
+
+The reference public deployment serves log **reads** as static path-keyed
+files (for example `/proof/inclusion/{idx}` alongside the self-hosted
+query form `/proof/inclusion?idx=`). That is an implementation choice
+documented outside this specification; it does not alter digests,
+signatures, or Merkle proofs. **No `prereg-v1.1` bump is required.**
+
+`POST /submit` remains the sole write path where a deployment exposes one;
+acceptance of a submission MAY be asynchronous (HTTP 202) provided the
+eventually published entry matches the sealed object bytes.
 
 ---
 

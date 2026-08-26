@@ -37,6 +37,34 @@ builds:
     goarch:
       - amd64
       - arm64
+  - id: plimsoll-static
+    main: ./cmd/plimsoll-static
+    binary: plimsoll-static
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+  - id: plimsoll-append
+    main: ./cmd/plimsoll-append
+    binary: plimsoll-append
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
 
 archives:
   - id: plimsoll
@@ -49,6 +77,14 @@ archives:
     name_template: "{{ .Binary }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
   - id: plimsolld
     ids: [plimsolld]
+    formats: [binary]
+    name_template: "{{ .Binary }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+  - id: plimsoll-static
+    ids: [plimsoll-static]
+    formats: [binary]
+    name_template: "{{ .Binary }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+  - id: plimsoll-append
+    ids: [plimsoll-append]
     formats: [binary]
     name_template: "{{ .Binary }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
 

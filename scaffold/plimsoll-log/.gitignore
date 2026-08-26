@@ -1,0 +1,9 @@
+# SQLite sidecars — never commit WAL/SHM; the committed log.sqlite is the source of truth.
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite-journal
+
+# Never commit private key material
+*.key
+log-signing*
+!keys/log-public.pem

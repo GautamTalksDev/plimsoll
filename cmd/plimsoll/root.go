@@ -44,8 +44,10 @@ A sealed decision rule cannot be amended by any flag, setting or tier.`,
 	root.PersistentFlags().BoolVar(&flags.json, "json", false, "machine-readable JSON output")
 	root.AddCommand(newSealCmd(flags))
 	root.AddCommand(newAttestCmd(flags))
+	root.AddCommand(newAwaitCmd(flags))
 	root.AddCommand(newSupersedeCmd(flags))
 	root.AddCommand(newVerifyCmd(flags))
+	root.AddCommand(newVerifyLogCmd(flags))
 	root.AddCommand(newEvidenceCmd(flags))
 	return root
 }

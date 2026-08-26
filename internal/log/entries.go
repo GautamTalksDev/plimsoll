@@ -83,6 +83,46 @@ type SealSummary struct {
 	Index           int64  `json:"index"`
 }
 
+// AllSealSummaries returns every seal, newest first, with attempt summaries.
+func (l *Log) AllSealSummaries() ([]SealSummary, error) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	rows, err := l.db.Query(`
+		SELECT idx, seal_hash, submitter_id, submitted_at, supersedes
+		FROM seals ORDER BY idx DESC`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var out []SealSummary
+	for rows.Next() {
+		var s SealSummary
+		if err := rows.Scan(&s.Index, &s.SealHash, &s.SubjectName, &s.SubmittedAt, &s.Supersedes); err != nil {
+			return nil, err
+		}
+		out = append(out, s)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	for i := range out {
+		attempts, err := l.attemptsForSealLocked(out[i].SealHash)
+		if err != nil {
+			return nil, err
+		}
+		out[i].AttemptCount = len(attempts)
+		if len(attempts) > 0 {
+			last := attempts[len(attempts)-1]
+			out[i].LatestVerdict = last.Verdict
+			out[i].LatestAttemptNo = last.AttemptNo
+		}
+	}
+	if out == nil {
+		out = []SealSummary{}
+	}
+	return out, nil
+}
+
 // RecentSeals returns the newest seals up to limit, with attempt summaries.
 func (l *Log) RecentSeals(limit int) ([]SealSummary, error) {
 	if limit <= 0 {

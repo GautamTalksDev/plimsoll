@@ -18,6 +18,8 @@ import (
 	"embed"
 	"io/fs"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -44,4 +46,29 @@ func MountVerify(mux *http.ServeMux) {
 // VerifyBaseURL returns the browser verifier URL for this site.
 func VerifyBaseURL(baseURL string) string {
 	return strings.TrimRight(baseURL, "/") + "/verify"
+}
+
+// CopyVerify writes the embedded browser verifier assets into dstDir.
+func CopyVerify(dstDir string) error {
+	sub, err := fs.Sub(verifyFS, "verify")
+	if err != nil {
+		return err
+	}
+	return fs.WalkDir(sub, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		target := filepath.Join(dstDir, path)
+		if d.IsDir() {
+			return os.MkdirAll(target, 0o755)
+		}
+		b, err := fs.ReadFile(sub, path)
+		if err != nil {
+			return err
+		}
+		if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
+			return err
+		}
+		return os.WriteFile(target, b, 0o644) //nolint:gosec // G306 -- public static assets
+	})
 }

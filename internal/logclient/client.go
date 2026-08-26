@@ -85,6 +85,10 @@ type PublishSealResult struct {
 	InclusionProof sealfile.StoredInclusionProof
 	Checkpoint     log.Checkpoint
 	Outbound       []byte
+	// Pending is true when the log accepted the submit (HTTP 202) but has not
+	// yet appended. Index/proof/checkpoint are unset until the client awaits.
+	Pending bool
+	Note    string
 }
 
 // PublishSeal appends a signed seal to the log and returns proofs.
@@ -147,9 +151,13 @@ func (c *Client) publishSealLocal(ss *seal.SignedSeal, sealHash string, canonica
 }
 
 func (c *Client) publishSealHTTP(raw []byte) (*PublishSealResult, error) {
-	resp, err := c.post("/submit", raw)
+	status, resp, err := c.post("/submit", raw)
 	if err != nil {
 		return nil, err
+	}
+	if status == http.StatusAccepted {
+		note := parseAcceptedNote(resp)
+		return &PublishSealResult{Pending: true, Note: note, Outbound: raw}, nil
 	}
 	var out struct {
 		Index          int64                         `json:"index"`
@@ -174,6 +182,8 @@ type PublishAttestResult struct {
 	InclusionProof   sealfile.StoredInclusionProof
 	Checkpoint       log.Checkpoint
 	Outbound         []byte
+	Pending          bool
+	Note             string
 }
 
 // PublishAttestation submits a signed attestation; the log assigns attempt_no.
@@ -249,9 +259,13 @@ func (c *Client) publishAttestLocal(signed *attestation.Signed, raw []byte) (*Pu
 }
 
 func (c *Client) publishAttestHTTP(raw []byte) (*PublishAttestResult, error) {
-	resp, err := c.post("/submit", raw)
+	status, resp, err := c.post("/submit", raw)
 	if err != nil {
 		return nil, err
+	}
+	if status == http.StatusAccepted {
+		note := parseAcceptedNote(resp)
+		return &PublishAttestResult{Pending: true, Note: note, Outbound: raw}, nil
 	}
 	var out struct {
 		Index            int64                         `json:"index"`
@@ -282,23 +296,33 @@ func uppercaseVerdicts(in []string) []string {
 	return out
 }
 
-func (c *Client) post(path string, body []byte) ([]byte, error) {
+func parseAcceptedNote(resp []byte) string {
+	var raw struct {
+		Note string `json:"note"`
+	}
+	if err := json.Unmarshal(resp, &raw); err != nil {
+		return ""
+	}
+	return raw.Note
+}
+
+func (c *Client) post(path string, body []byte) (int, []byte, error) {
 	req, err := http.NewRequest(http.MethodPost, c.base+path, bytes.NewReader(body))
 	if err != nil {
-		return nil, err
+		return 0, nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
 	res, err := c.http.Do(req)
 	if err != nil {
-		return nil, err
+		return 0, nil, err
 	}
 	defer res.Body.Close()
 	b, err := io.ReadAll(res.Body)
 	if err != nil {
-		return nil, err
+		return res.StatusCode, nil, err
 	}
 	if res.StatusCode/100 != 2 {
-		return nil, fmt.Errorf("logclient: POST %s: %s", path, string(b))
+		return res.StatusCode, b, fmt.Errorf("logclient: POST %s: %s", path, string(b))
 	}
-	return b, nil
+	return res.StatusCode, b, nil
 }

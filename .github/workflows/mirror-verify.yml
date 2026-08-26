@@ -1,0 +1,44 @@
+# Verify public log mirror (equivocation check)
+
+# Clones GautamTalksDev/plimsoll-log daily and runs `plimsoll verify-log`.
+# Output is public so anyone can see an independent replay of the Merkle tree.
+
+name: Mirror verify-log
+
+on:
+  schedule:
+    - cron: "17 6 * * *" # daily ~06:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-log:
+    name: verify-log
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout plimsoll
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: "1.23"
+          cache: true
+
+      - name: Build plimsoll
+        run: go build -trimpath -o "${RUNNER_TEMP}/plimsoll" ./cmd/plimsoll
+
+      - name: Clone public log
+        run: |
+          set -euo pipefail
+          git clone --filter=blob:none https://github.com/GautamTalksDev/plimsoll-log.git "${RUNNER_TEMP}/plimsoll-log"
+          git -C "${RUNNER_TEMP}/plimsoll-log" log --oneline | head -n 20
+
+      - name: verify-log
+        run: |
+          set -euo pipefail
+          "${RUNNER_TEMP}/plimsoll" verify-log --dir "${RUNNER_TEMP}/plimsoll-log"

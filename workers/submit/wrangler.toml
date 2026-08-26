@@ -1,0 +1,15 @@
+name = "plimsoll-submit"
+main = "src/index.ts"
+compatibility_date = "2026-08-26"
+
+# Attach this Worker to POST /submit on the public log hostname.
+# Pages serves every other path from the plimsoll-log static tree.
+routes = [
+  { pattern = "plimsoll.gautamkhosla.com/submit", zone_name = "gautamkhosla.com" }
+]
+
+[vars]
+LOG_REPO = "GautamTalksDev/plimsoll-log"
+
+# Secrets (set with wrangler, never commit):
+#   wrangler secret put LOG_DISPATCH_TOKEN

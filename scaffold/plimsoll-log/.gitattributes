@@ -1,0 +1,4 @@
+# Normalize text; keep SQLite as binary.
+* text=auto eol=lf
+log.sqlite binary
+*.pem text eol=lf

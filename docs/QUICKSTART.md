@@ -10,6 +10,12 @@ Every path follows the same three steps:
 2. **Evaluate** — run your harness as you normally would; save results to a file.
 3. **Attest** — adapt results, evaluate the sealed rule, sign, publish.
 
+**Publish latency (public log):** `--publish` to `https://plimsoll.gautamkhosla.com`
+is asynchronous. The Worker accepts the submit immediately; the git-backed log
+appends within about a minute. Until then, `/seal/{hash}` is empty. Use
+`--wait` (or `plimsoll await`) when you need the inclusion proof before the
+next step. A local SQLite log (`--log ./plimsoll-log.sqlite`) stays synchronous.
+
 Generate a key once (stored at `~/.config/plimsoll/key`):
 
 ```bash
@@ -19,6 +25,7 @@ test -f ~/.config/plimsoll/key || plimsoll seal --help >/dev/null
 ```
 
 Use a local SQLite log for development (`--log ./plimsoll-log.sqlite`).
+For the public log, set `--log-url https://plimsoll.gautamkhosla.com` and prefer `--wait` in scripts.
 
 ---
 
@@ -80,11 +87,18 @@ analysis_plan: Quickstart generic example.
 **4. Seal and attest:**
 
 ```bash
+# Local SQLite (synchronous — fine for development):
 plimsoll seal --file prereg.yaml --publish --log ./plimsoll-log.sqlite
 plimsoll attest --seal my-claim.seal.json --results results.json --publish --log ./plimsoll-log.sqlite
+
+# Public log (asynchronous — about a minute to appear; --wait blocks for CI):
+plimsoll seal --file prereg.yaml --publish --log-url https://plimsoll.gautamkhosla.com --wait
+plimsoll attest --seal my-claim.seal.json --results results.json \
+  --publish --log-url https://plimsoll.gautamkhosla.com --wait
 ```
 
-Third parties verify with `plimsoll verify my-claim.attest.json --log http://your-log`.
+Third parties verify with `plimsoll verify my-claim.attest.json --log https://plimsoll.gautamkhosla.com`.
+Without `--wait`, confirm inclusion with `plimsoll await --seal sha256:… --log https://plimsoll.gautamkhosla.com`.
 
 ---
 

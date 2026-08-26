@@ -1,0 +1,10 @@
+/checkpoint
+  Cache-Control: public, max-age=60
+/checkpoints/*
+  Cache-Control: public, max-age=31536000, immutable
+/entries/*
+  Cache-Control: public, max-age=31536000, immutable
+/proof/*
+  Cache-Control: public, max-age=31536000, immutable
+/seal/*
+  Cache-Control: public, max-age=300

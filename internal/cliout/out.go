@@ -108,11 +108,27 @@ func (p *Printer) EmitJSON(v any) error {
 
 const LocalOnlyWarning = "LOCAL ONLY - this seal is not independently timestamped and proves nothing to a third party. Re-run with --publish."
 
+// SubmittedPending is printed after HTTP 202 (async append). Never implies the entry is logged yet.
+const SubmittedPending = `Submitted. The log appends within about a minute.
+Run: plimsoll verify <file> --log <url>   to confirm inclusion.`
+
 func (p *Printer) PrintLocalOnlyWarning() {
 	if p.JSON {
 		return
 	}
 	p.Warn(LocalOnlyWarning)
+}
+
+func (p *Printer) PrintSubmittedPending(verifyFile, logURL string) {
+	if p.JSON {
+		return
+	}
+	msg := SubmittedPending
+	if verifyFile != "" && logURL != "" {
+		msg = fmt.Sprintf("Submitted. The log appends within about a minute.\nRun: plimsoll verify %s --log %s   to confirm inclusion.",
+			verifyFile, logURL)
+	}
+	p.Println(msg)
 }
 
 func (p *Printer) PrintAttemptLine(attemptNo int, previous []string) {

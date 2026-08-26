@@ -19,6 +19,7 @@ import (
 	"bytes"
 	"crypto/ed25519"
 	"encoding/base64"
+	"errors"
 	"html/template"
 	"net/http"
 	"os"
@@ -29,6 +30,8 @@ import (
 	"github.com/GautamTalksDev/plimsoll/internal/seal"
 	"github.com/GautamTalksDev/plimsoll/internal/verify"
 )
+
+var errSealNotFound = errors.New("site: seal not found")
 
 // Renderer serves HTML pages alongside the log API.
 type Renderer struct {
@@ -43,9 +46,7 @@ type Renderer struct {
 func New(l *log.Log, pub ed25519.PublicKey, specPath, baseURL string) (*Renderer, error) {
 	base := strings.TrimRight(baseURL, "/")
 	t, err := template.New("site").Funcs(template.FuncMap{
-		"sealPath": func(hash string) string {
-			return "/seal/" + strings.ReplaceAll(hash, ":", "%3A")
-		},
+		"sealPath": SealPath,
 		"verifyURL": func(logURL, digest string) string {
 			return verify.VerifyURL(VerifyBaseURL(base), logURL, digest)
 		},
@@ -71,21 +72,144 @@ func (r *Renderer) Mount(mux *http.ServeMux, l *log.Log, pub ed25519.PublicKey) 
 	MountVerify(mux)
 }
 
+// SealDir returns the filesystem- and URL-safe directory name for a seal digest.
+// ':' is percent-encoded so the name is valid on Windows and in static URLs.
+func SealDir(hash string) string {
+	return strings.ReplaceAll(hash, ":", "%3A")
+}
+
+// SealPath returns the URL path for a seal digest ('/' + seal/{urlsafe_hash}).
+func SealPath(hash string) string {
+	return "/seal/" + SealDir(hash)
+}
+
 // ServeSeal renders per-seal history HTML.
 func (r *Renderer) ServeSeal(w http.ResponseWriter, req *http.Request, sealHash string) {
-	rec, ok, err := r.Log.SealByHash(sealHash)
+	data, err := r.SealPage(sealHash)
 	if err != nil {
+		if errors.Is(err, errSealNotFound) {
+			http.NotFound(w, req)
+			return
+		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	if !ok {
+	r.render(w, data)
+}
+
+func (r *Renderer) handleHome(w http.ResponseWriter, req *http.Request) {
+	if req.URL.Path != "/" {
 		http.NotFound(w, req)
 		return
 	}
-	attempts, err := r.Log.AttemptsForSeal(sealHash)
+	r.render(w, r.HomePage())
+}
+
+func (r *Renderer) handleSeals(w http.ResponseWriter, _ *http.Request) {
+	data, err := r.SealsPage()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
+	}
+	r.render(w, data)
+}
+
+func (r *Renderer) handleKey(w http.ResponseWriter, _ *http.Request) {
+	r.render(w, r.KeyPage())
+}
+
+func (r *Renderer) handleSpec(w http.ResponseWriter, _ *http.Request) {
+	data, err := r.SpecPage()
+	if err != nil {
+		http.Error(w, "spec unavailable", http.StatusInternalServerError)
+		return
+	}
+	r.render(w, data)
+}
+
+func (r *Renderer) handleRunYourOwn(w http.ResponseWriter, _ *http.Request) {
+	r.render(w, r.RunPage())
+}
+
+func (r *Renderer) render(w http.ResponseWriter, data map[string]any) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("Cache-Control", "public, max-age=120")
+	b, err := r.Render(data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	_, _ = w.Write(b)
+}
+
+// Render executes the site template. html/template escapes user-supplied strings.
+func (r *Renderer) Render(data map[string]any) ([]byte, error) {
+	var buf bytes.Buffer
+	if err := r.templates.Execute(&buf, data); err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
+// HomePage is the landing page data.
+func (r *Renderer) HomePage() map[string]any {
+	return map[string]any{"Page": "home", "Title": "PLIMSOLL"}
+}
+
+// SealsPage lists every seal, newest first.
+func (r *Renderer) SealsPage() (map[string]any, error) {
+	list, err := r.Log.AllSealSummaries()
+	if err != nil {
+		return nil, err
+	}
+	return map[string]any{"Page": "seals", "Title": "Recent seals", "Seals": list}, nil
+}
+
+// KeyPage is the HTML public-key page used by logd. Static hosting serves PEM at /key.
+func (r *Renderer) KeyPage() map[string]any {
+	return map[string]any{
+		"Page": "key", "Title": "Log public key",
+		"PublicKey": base64.StdEncoding.EncodeToString(r.PublicKey),
+	}
+}
+
+// SpecPage renders SPEC-PREREG.md with every line HTML-escaped.
+func (r *Renderer) SpecPage() (map[string]any, error) {
+	b, err := os.ReadFile(r.SpecPath)
+	if err != nil {
+		return nil, err
+	}
+	return map[string]any{
+		"Page": "spec", "Title": "Specification",
+		"SpecHTML": renderMarkdownSafe(string(b)),
+	}, nil
+}
+
+// RunPage is the self-hosted logd instructions page.
+func (r *Renderer) RunPage() map[string]any {
+	return map[string]any{"Page": "run", "Title": "Run your own log"}
+}
+
+type sealAttemptRow struct {
+	No        int
+	Verdict   string
+	Digest    string
+	VerifyURL string
+}
+
+// SealPage returns template data for one seal. Names and supersede reasons are
+// plain strings; html/template escapes them on render.
+func (r *Renderer) SealPage(sealHash string) (map[string]any, error) {
+	rec, ok, err := r.Log.SealByHash(sealHash)
+	if err != nil {
+		return nil, err
+	}
+	if !ok {
+		return nil, errSealNotFound
+	}
+	attempts, err := r.Log.AttemptsForSeal(sealHash)
+	if err != nil {
+		return nil, err
 	}
 	name := rec.SubmitterID
 	supReason := ""
@@ -98,78 +222,21 @@ func (r *Renderer) ServeSeal(w http.ResponseWriter, req *http.Request, sealHash 
 			supReason = s.Supersedes.Reason
 		}
 	}
-	type row struct {
-		No        int
-		Verdict   string
-		Digest    string
-		VerifyURL string
-	}
-	var rows []row
+	var rows []sealAttemptRow
 	vbase := VerifyBaseURL(r.BaseURL)
 	for _, a := range attempts {
-		rows = append(rows, row{
+		rows = append(rows, sealAttemptRow{
 			a.AttemptNo, strings.ToUpper(a.Verdict), a.ResultDigest,
 			verify.VerifyURL(vbase, r.BaseURL, a.ResultDigest),
 		})
 	}
-	r.render(w, map[string]any{
+	return map[string]any{
 		"Page": "seal", "Title": name, "SealHash": sealHash, "SubjectName": name,
 		"Supersedes": rec.Supersedes, "SupersedeReason": supReason, "Attempts": rows,
-		"BadgeURL":  r.BaseURL + "/seal/" + strings.ReplaceAll(sealHash, ":", "%3A") + "/badge.svg",
+		"BadgeURL":  r.BaseURL + SealPath(sealHash) + "/badge.svg",
 		"VerifyURL": verify.VerifyURL(vbase, r.BaseURL, ""),
 		"LogURL":    r.BaseURL,
-	})
-}
-
-func (r *Renderer) handleHome(w http.ResponseWriter, req *http.Request) {
-	if req.URL.Path != "/" {
-		http.NotFound(w, req)
-		return
-	}
-	r.render(w, map[string]any{"Page": "home", "Title": "PLIMSOLL"})
-}
-
-func (r *Renderer) handleSeals(w http.ResponseWriter, _ *http.Request) {
-	list, err := r.Log.RecentSeals(100)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	r.render(w, map[string]any{"Page": "seals", "Title": "Recent seals", "Seals": list})
-}
-
-func (r *Renderer) handleKey(w http.ResponseWriter, _ *http.Request) {
-	r.render(w, map[string]any{
-		"Page": "key", "Title": "Log public key",
-		"PublicKey": base64.StdEncoding.EncodeToString(r.PublicKey),
-	})
-}
-
-func (r *Renderer) handleSpec(w http.ResponseWriter, _ *http.Request) {
-	b, err := os.ReadFile(r.SpecPath)
-	if err != nil {
-		http.Error(w, "spec unavailable", http.StatusInternalServerError)
-		return
-	}
-	r.render(w, map[string]any{
-		"Page": "spec", "Title": "Specification",
-		"SpecHTML": renderMarkdownSafe(string(b)),
-	})
-}
-
-func (r *Renderer) handleRunYourOwn(w http.ResponseWriter, _ *http.Request) {
-	r.render(w, map[string]any{"Page": "run", "Title": "Run your own log"})
-}
-
-func (r *Renderer) render(w http.ResponseWriter, data map[string]any) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	w.Header().Set("Cache-Control", "public, max-age=120")
-	var buf bytes.Buffer
-	if err := r.templates.Execute(&buf, data); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	_, _ = w.Write(buf.Bytes())
+	}, nil
 }
 
 func renderMarkdownSafe(md string) template.HTML {

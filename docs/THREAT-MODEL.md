@@ -29,7 +29,7 @@ running code.
 | --- | --- | --- |
 | T1 | Amend a sealed decision rule after seeing results | No flag, env var, setting, or paid tier may override a sealed rule. Seals are append-only; a new rule is a new seal, not an edit. |
 | T2 | Publish only the successful attempt | The log records attested attempts against a seal, including failures. Kill test KT-2 exists because a log that never shows retries adds nothing over a git commit. |
-| T3 | Split-view / equivocation by the log operator | Merkle inclusion and consistency proofs. Verification must not require our log as the only endpoint (non-goal 5). |
+| T3 | Split-view / equivocation by the log operator | Merkle inclusion and consistency proofs. Git-backed public log: clones detect rewritten history; `plimsoll verify-log` replays checkpoints (not a witness protocol — see TECHNICAL-NOTE §4). Verification must not require our log as the only endpoint (non-goal 5). |
 | T4 | Receive, store, or transmit eval data | Digests and metadata only. Adapters and canonicalization are pure (no I/O). Testdata in this repo is fixtures, never a user's dataset. |
 | T5 | Make our log the only verifier | `internal/verify` is offline-capable. Anyone with the artifact and a proof can verify. |
 | T6 | Non-deterministic or unevaluable trust path | Decision engine is deterministic and unit-testable. No LLM calls, heuristic scores, or probabilistic classifiers. |

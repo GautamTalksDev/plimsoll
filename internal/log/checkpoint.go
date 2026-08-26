@@ -27,7 +27,14 @@ import (
 )
 
 // SignCheckpoint signs the current tree head with priv and stores it.
+// The timestamp is the current Unix time; prefer SignCheckpointAt in tests
+// and offline builders that require byte-identical output.
 func (l *Log) SignCheckpoint(priv ed25519.PrivateKey) (Checkpoint, error) {
+	return l.SignCheckpointAt(priv, time.Now().Unix())
+}
+
+// SignCheckpointAt signs the current tree head using the given Unix timestamp.
+func (l *Log) SignCheckpointAt(priv ed25519.PrivateKey, timestamp int64) (Checkpoint, error) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
@@ -40,16 +47,15 @@ func (l *Log) SignCheckpoint(priv ed25519.PrivateKey) (Checkpoint, error) {
 		return Checkpoint{}, err
 	}
 	root := hex.EncodeToString(MerkleRoot(leaves))
-	ts := time.Now().Unix()
 	size := int64(len(leaves))
 
-	payload := checkpointPayload(size, root, ts)
+	payload := checkpointPayload(size, root, timestamp)
 	sig := ed25519.Sign(priv, payload)
 
 	cp := Checkpoint{
 		TreeSize:  size,
 		RootHash:  root,
-		Timestamp: ts,
+		Timestamp: timestamp,
 		Signature: base64.StdEncoding.EncodeToString(sig),
 	}
 
