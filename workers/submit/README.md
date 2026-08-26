@@ -59,44 +59,38 @@ curl -i -X POST https://plimsoll.gautamkhosla.com/submit \
 # expect HTTP/2 202 and a plimsoll-log commit within ~60s
 ```
 
-## Dashboard rate-limit rules (required)
+## Rate limiting — what is and is not in place
 
-Do **not** implement counters in Worker code. Create these under
-**Security → WAF → Rate limiting rules** (or **Security → Rate limiting**)
-for the zone `gautamkhosla.com`:
+**Measured, not assumed:** a Cloudflare rate-limiting rule matching
+`http.request.uri.path eq "/submit"` was created on the free plan, set to
+Block at 10 requests / 10 seconds by IP, and **did not fire**. Twenty-five
+parallel `POST /submit` requests all returned 400 from the Worker and the
+rule's Events counter stayed at 0. A Worker route handles the request before
+free-plan WAF rate limiting evaluates it, so the rule matches on paper and
+never sees the traffic. The rule is left in place, inert, in case this
+changes on a paid plan.
 
-### Rule A — burst
+Do not claim rate limiting as a control until an Events count above zero has
+been observed.
 
-| Field | Value |
-| --- | --- |
-| Name | `plimsoll-submit-burst` |
-| If incoming requests match | `(http.request.uri.path eq "/submit")` |
-| With the same characteristics | IP |
-| Then | Block |
-| Period | 1 minute |
-| Requests | 10 |
-| Mitigation timeout | 60 seconds |
-| Response | 429 (optional custom body: `rate limit exceeded`) |
+### The limits that do exist
 
-### Rule B — daily
+| Limit | Value | Enforced by |
+| --- | --- | --- |
+| Worker requests | 100k/day, hard stop | Cloudflare free tier |
+| Appends | ~1/min, serialised | Actions `concurrency: plimsoll-log-append` |
+| Body size | 256 KiB | Worker, streaming cap |
+| Dispatch size | 65,000 bytes | Worker, before `repository_dispatch` |
+| Integrity | Ed25519 + allowlist | `plimsoll-append` in the Action |
 
-| Field | Value |
-| --- | --- |
-| Name | `plimsoll-submit-daily` |
-| If incoming requests match | `(http.request.uri.path eq "/submit")` |
-| With the same characteristics | IP |
-| Then | Block |
-| Period | 1 day (86400 seconds) |
-| Requests | 100 |
-| Mitigation timeout | 3600 seconds (or dashboard default) |
-| Response | 429 |
+### The residual exposure
 
-Verify by hand: eleven `POST /submit` requests from one IP within a minute
-should see the 11th rejected with **429** by Rule A (the Worker never sees it).
-
-Free / included rate-limiting entitlements vary by Cloudflare plan; if the
-dashboard will not save a 1-day window, use the longest available period and
-document the effective daily ceiling in this file.
+An attacker sending well-shaped but cryptographically invalid payloads cannot
+write to the log — `plimsoll-append` rejects them and a rejected submission
+consumes no attempt number. They can, however, consume GitHub Actions minutes
+on the public repo. This is accepted for v1. If it is ever exercised, the
+mitigation is to move the shape check into the Worker's dispatch decision or
+require a submitter token.
 
 ## Secrets
 
