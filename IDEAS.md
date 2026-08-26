@@ -38,3 +38,15 @@ the CLI. Update SealDir/SealPath, the badge URL, the site templates, logfetch,
 the WASM verifier, docs/STATIC-LOG.md, and add a test asserting the generated
 path contains no '%'. The existing seal at idx=0 keeps its old directory;
 regenerating the tree produces the new one.
+
+## Pages serves the HTML fallback with HTTP 200 for every unknown path
+
+`/anything-at-all` returns the site's HTML under a 200, not a 404. Nothing is
+exposed (only `public/` is deployed), but it means a client cannot distinguish
+"not found" from "found" by status code. This is what made the %3A seal-path
+bug invisible: the CLI polled a path that did not exist and got 200 + HTML,
+so it hung parsing HTML as JSON instead of failing fast.
+
+Mitigation already in place: clients should request the explicit `index.json`
+and treat a non-JSON body as an error rather than trusting the status code.
+Worth adding a real 404 page and, if Pages allows it, a proper status.
