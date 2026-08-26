@@ -35,6 +35,23 @@ Until N≥100 from consented pilot (or later public-log) seals, do not treat abs
 
 ---
 
+## 2a. Entries currently in the public log
+
+The public log at `https://plimsoll.gautamkhosla.com` went live on 26 August
+2026 and contains seals published by the operator while testing the deployment
+end to end. As of that date: 3 seals, 2 attestations.
+
+**None of these count toward KT-2.** They are the operator's own fixtures,
+authored and verified by the same person, against a five-row synthetic dataset.
+They demonstrate that the mechanism runs; they are evidence of nothing about
+whether post-hoc flexibility occurs in practice. Counting them would be the
+exact behaviour this project exists to make visible.
+
+The first entry a reader should treat as data is a seal published by a party
+other than the operator.
+
+---
+
 ## 3. Override log
 
 **Count:** 0 override requests recorded.

@@ -104,27 +104,36 @@ go install github.com/GautamTalksDev/plimsoll/cmd/plimsoll@latest
 Write your pre-registration. This is the whole file:
 
 ```yaml
-plimsoll_version: seal-v1
+plimsoll_version: prereg-v1
+canon_version: plimsoll-canon-v1
+created_at: "2026-08-26T00:00:00Z"
 subject:
-  name: support-agent-quality
+  name: support-agent-quality        # published verbatim: no personal data
   system_under_test:
-    model: claude-sonnet-4-6
-    prompt_sha256: sha256:...
+    model: claude-sonnet-4-6         # an identifier, never model weights
+    prompt_sha256: "sha256:..."      # digest of your prompt document
+    config_sha256: "sha256:..."      # digest of your config document
 dataset:
-  path: ./eval-set.jsonl      # hashed locally, never uploaded
+  path: ./eval-set.jsonl             # hashed locally, never uploaded
+  n: 250                             # row count; the CLI fills this in
+  sampling: exhaustive               # exhaustive | random | stratified | other
   held_out: true
 harness:
   tool: deepeval
-  version: 3.4.1
+  version: "3.4.1"
+  config_sha256: "sha256:..."
 metrics:
   - id: acc
     name: answer_relevance
+    definition_uri: https://example.invalid/metrics/answer-relevance
     direction: higher_is_better
 decision_rule:
   expression: "acc.mean >= 0.82 AND acc.p10 >= 0.60"
   primary_metric: acc
-  threshold: 0.82
+  threshold: "0.82"                  # a string, never a YAML number
+  comparison: ">="
   precision: 6
+exclusions: []
 planned_attempts: 1
 analysis_plan: "Single run. No re-runs. Failure is reported as failure."
 ```
@@ -424,6 +433,19 @@ One thing worth stating explicitly: we do not interpret your evaluation results,
 Contributions welcome, with a DCO sign-off (`git commit -s`) on every commit. Read [CONTRIBUTING.md](CONTRIBUTING.md) and the design commitments above before opening a pull request.
 
 If you maintain an eval framework and want to emit PLIMSOLL attestations natively, please do. The spec is CC0 precisely so you do not have to ask.
+
+## Privacy, terms, and what publishing means
+
+Publishing to the public log is **permanent**. Entries cannot be edited or
+deleted by anyone, including the operator, because the log's integrity
+guarantee is that history cannot be rewritten. Read [PRIVACY.md](PRIVACY.md)
+before you publish, in particular the warning about free-text fields: your
+`subject.name`, `analysis_plan` and `exclusions` are published verbatim in a
+public git repository, so they must not contain personal or confidential data.
+
+The CLI makes no network request unless you pass `--publish` or `--log-url`.
+The website has no cookies, no accounts, no analytics and no third-party
+scripts. Terms of use for the public log are in [TERMS.md](TERMS.md).
 
 ## License
 
