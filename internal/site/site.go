@@ -192,7 +192,7 @@ func renderMarkdownSafe(md string) template.HTML {
 			b.WriteString("<p>" + esc + "</p>")
 		}
 	}
-	return template.HTML(b.String())
+	return template.HTML(b.String()) //nolint:gosec // G203 -- every line is HTML-escaped before tags are added
 }
 
 const pageT = `<!DOCTYPE html>

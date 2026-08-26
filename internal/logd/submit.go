@@ -232,5 +232,5 @@ func (s *Server) serveBadge(w http.ResponseWriter, r *http.Request, sealHash str
 	style := badge.StyleForAttempts(attempts)
 	w.Header().Set("Content-Type", "image/svg+xml; charset=utf-8")
 	w.Header().Set("Cache-Control", "public, max-age=300, s-maxage=600")
-	_, _ = w.Write(badge.SVG(style))
+	_, _ = w.Write(badge.SVG(style)) //nolint:gosec // G705 -- SVG escapes labels; colors are fixed constants
 }

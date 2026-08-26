@@ -18,7 +18,6 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -119,7 +118,7 @@ func runAttest(out *cliout.Printer, sealPath, resultsPath string, publish bool, 
 		return exitOperational, opErrf("sign attestation: %v", err)
 	}
 	wd, _ := os.Getwd()
-	attPath := filepath.Join(wd, strings.ReplaceAll(doc.Seal.Seal.Subject.Name, " ", "_")+".attest.json")
+	attPath := filepath.Join(wd, sealfile.SafeBaseName(doc.Seal.Seal.Subject.Name)+".attest.json")
 	b, _ := json.MarshalIndent(signed.Document, "", "  ")
 	if err := os.WriteFile(attPath, b, 0o644); err != nil {
 		return exitOperational, opErrf("write attestation: %v", err)
@@ -130,7 +129,7 @@ func runAttest(out *cliout.Printer, sealPath, resultsPath string, publish bool, 
 		if err != nil {
 			return exitOperational, opErrf("log: %v", err)
 		}
-		defer lc.Close()
+		defer func() { _ = lc.Close() }()
 		pubRes, err = lc.PublishAttestation(signed)
 		if err != nil {
 			return exitOperational, opErrf("publish: %v", err)

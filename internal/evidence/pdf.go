@@ -177,7 +177,9 @@ func buildPDF(lines []string, generatedAt int64) ([]byte, error) {
 		fmt.Fprintf(&buf, "%d 0 obj\n%s\nendobj\n", num, body)
 	}
 
-	buf.WriteString(fmt.Sprintf("%%PDF-%s\n", pdfVersion))
+	buf.WriteString("%PDF-")
+	buf.WriteString(pdfVersion)
+	buf.WriteByte('\n')
 	writeObj(1, fmt.Sprintf("<< /Type /Catalog /Pages %d 0 R >>", pagesObjNum))
 	kids := make([]string, len(pageNums))
 	for i, p := range pageNums {

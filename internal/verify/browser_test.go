@@ -134,10 +134,11 @@ func browserEnv(t *testing.T) *browserTestEnv {
 	if err != nil {
 		t.Fatal(err)
 	}
-	srv := httptest.NewServer(logd.New(logd.Config{Log: l, PrivKey: priv, PublicKey: pub}).Handler())
+	logSrv := logd.New(logd.Config{Log: l, PrivKey: priv, PublicKey: pub})
+	srv := httptest.NewServer(logSrv.Handler())
 	t.Cleanup(func() {
 		srv.Close()
-		_ = l.Close()
+		_ = logSrv.Close()
 	})
 	return &browserTestEnv{dir: dir, l: l, pub: pub, srv: srv, att: att, attJSON: attJSON}
 }

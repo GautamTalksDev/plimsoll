@@ -37,7 +37,7 @@ func TestVerifyPageEmbedded(t *testing.T) {
 		}
 		body, _ := io.ReadAll(resp.Body)
 		_ = resp.Body.Close()
-		if resp.StatusCode != http.StatusOK && !(path == "/verify" && resp.StatusCode == http.StatusFound) {
+		if resp.StatusCode != http.StatusOK && (path != "/verify" || resp.StatusCode != http.StatusFound) {
 			t.Fatalf("%s status=%d", path, resp.StatusCode)
 		}
 		if path == "/verify/index.html" || path == "/verify/" {

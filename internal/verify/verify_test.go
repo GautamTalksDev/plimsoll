@@ -29,6 +29,7 @@ import (
 	"github.com/GautamTalksDev/plimsoll/internal/keys"
 	"github.com/GautamTalksDev/plimsoll/internal/logclient"
 	"github.com/GautamTalksDev/plimsoll/internal/logserver"
+	"github.com/GautamTalksDev/plimsoll/internal/testbin"
 	"github.com/GautamTalksDev/plimsoll/internal/verify"
 )
 
@@ -83,7 +84,7 @@ func TestTamperedSQLiteFailsVerification(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer lc.Close()
+	defer func() { _ = lc.Close() }()
 	srv := httptest.NewServer(logserver.New(lc.Log(), pub).Handler())
 	defer srv.Close()
 	report, err := verify.Run(env.attPath, verify.Options{LogURL: srv.URL})
@@ -285,14 +286,7 @@ func runPlimsollAllowExit(bin, dir string, allowExit int, args ...string) (strin
 }
 
 func buildPlimsoll(t *testing.T) string {
-	t.Helper()
-	out := filepath.Join(t.TempDir(), "plimsoll")
-	cmd := exec.Command("go", "build", "-o", out, ".")
-	cmd.Dir = filepath.Join("..", "..", "cmd", "plimsoll")
-	if b, err := cmd.CombinedOutput(); err != nil {
-		t.Fatalf("build: %v\n%s", err, b)
-	}
-	return out
+	return testbin.Plimsoll(t)
 }
 
 func runPlimsoll(bin, dir string, args ...string) (string, error) {

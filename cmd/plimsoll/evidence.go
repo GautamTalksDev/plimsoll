@@ -92,7 +92,7 @@ func runEvidence(out *cliout.Printer, cfg evidenceCLI) error {
 		if err != nil {
 			return opErrf("evidence: open log: %v", err)
 		}
-		defer l.Close()
+		defer func() { _ = l.Close() }()
 		opt.LocalLog = l
 		opt.LogPub = pub
 	}

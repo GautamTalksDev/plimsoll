@@ -56,6 +56,14 @@ func (s *Server) Handler() http.Handler {
 	return s.chain(s.mux)
 }
 
+// Close releases resources held by the server, including the log database.
+func (s *Server) Close() error {
+	if s == nil || s.cfg.Log == nil {
+		return nil
+	}
+	return s.cfg.Log.Close()
+}
+
 func (s *Server) chain(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		setSecurityHeaders(w)

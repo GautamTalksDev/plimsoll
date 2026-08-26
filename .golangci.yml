@@ -10,6 +10,26 @@ linters:
     - gosec
     - govet
     - staticcheck
+  settings:
+    gosec:
+      # CLI reads/writes caller-chosen paths; public artifacts use 0644/0755.
+      excludes:
+        - G204
+        - G301
+        - G304
+        - G306
+        - G703
+  exclusions:
+    presets:
+      - comments
+      - std-error-handling
+      - common-false-positives
+    rules:
+      # Tests intentionally exec binaries, write fixtures, and ignore some errors.
+      - path: _test\.go
+        linters:
+          - errcheck
+          - gosec
 
 issues:
   max-issues-per-linter: 0

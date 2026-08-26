@@ -30,6 +30,15 @@ import (
 
 var safeName = regexp.MustCompile(`[^A-Za-z0-9._-]+`)
 
+// SafeBaseName returns a filesystem-safe basename derived from subject.
+func SafeBaseName(subject string) string {
+	name := safeName.ReplaceAllString(subject, "_")
+	if name == "" {
+		return "seal"
+	}
+	return name
+}
+
 // Document is a signed seal artifact written by the CLI.
 type Document struct {
 	SealHash       string                `json:"seal_hash"`
@@ -54,11 +63,7 @@ func Write(dir string, doc *Document) (string, error) {
 	if doc == nil || doc.Seal == nil || doc.Seal.Seal == nil {
 		return "", fmt.Errorf("sealfile: empty document")
 	}
-	name := safeName.ReplaceAllString(doc.Seal.Seal.Subject.Name, "_")
-	if name == "" {
-		name = "seal"
-	}
-	path := filepath.Join(dir, name+".seal.json")
+	path := filepath.Join(dir, SafeBaseName(doc.Seal.Seal.Subject.Name)+".seal.json")
 	b, err := json.MarshalIndent(doc, "", "  ")
 	if err != nil {
 		return "", err

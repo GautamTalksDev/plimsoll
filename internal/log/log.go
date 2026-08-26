@@ -79,7 +79,12 @@ func Open(path string) (*Log, error) {
 func (l *Log) Close() error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
-	return l.db.Close()
+	if l.db == nil {
+		return nil
+	}
+	err := l.db.Close()
+	l.db = nil
+	return err
 }
 
 func (l *Log) migrate() error {

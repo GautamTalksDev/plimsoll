@@ -68,11 +68,11 @@ func Sanitize(s string) string {
 }
 
 func (p *Printer) Printf(format string, args ...any) {
-	fmt.Fprintf(p.Out, Sanitize(fmt.Sprintf(format, args...)))
+	_, _ = fmt.Fprint(p.Out, Sanitize(fmt.Sprintf(format, args...)))
 }
 
 func (p *Printer) Println(s string) {
-	fmt.Fprintln(p.Out, Sanitize(s))
+	_, _ = fmt.Fprintln(p.Out, Sanitize(s))
 }
 
 func (p *Printer) Warn(s string) {
@@ -81,10 +81,10 @@ func (p *Printer) Warn(s string) {
 	}
 	msg := Sanitize(s)
 	if p.IsTTY {
-		fmt.Fprintf(p.Err, "\x1b[33m%s\x1b[0m\n", msg)
+		_, _ = fmt.Fprintf(p.Err, "\x1b[33m%s\x1b[0m\n", msg)
 		return
 	}
-	fmt.Fprintln(p.Err, msg)
+	_, _ = fmt.Fprintln(p.Err, msg)
 }
 
 func (p *Printer) Success(s string) {
@@ -93,9 +93,9 @@ func (p *Printer) Success(s string) {
 	}
 	msg := Sanitize(s)
 	if p.IsTTY {
-		fmt.Fprintf(p.Out, "\x1b[32m%s\x1b[0m\n", msg)
+		_, _ = fmt.Fprintf(p.Out, "\x1b[32m%s\x1b[0m\n", msg)
 	} else {
-		fmt.Fprintln(p.Out, msg)
+		_, _ = fmt.Fprintln(p.Out, msg)
 	}
 }
 

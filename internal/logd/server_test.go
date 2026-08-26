@@ -46,6 +46,17 @@ func testKey(t *testing.T) (ed25519.PrivateKey, ed25519.PublicKey) {
 	return priv, pub
 }
 
+func startLogd(t *testing.T, cfg logd.Config) (*logd.Server, *httptest.Server) {
+	t.Helper()
+	s := logd.New(cfg)
+	ts := httptest.NewServer(s.Handler())
+	t.Cleanup(func() {
+		ts.Close()
+		_ = s.Close()
+	})
+	return s, ts
+}
+
 func TestLogdVerifyE2E(t *testing.T) {
 	priv, pub := testKey(t)
 	dir := t.TempDir()
@@ -54,11 +65,10 @@ func TestLogdVerifyE2E(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	srv := httptest.NewServer(logd.New(logd.Config{Log: l, PrivKey: priv, PublicKey: pub}).Handler())
-	defer srv.Close()
+	_, srv := startLogd(t, logd.Config{Log: l, PrivKey: priv, PublicKey: pub})
 
 	lc := logclient.NewHTTP(srv.URL, priv, srv.Client())
-	defer lc.Close()
+	defer func() { _ = lc.Close() }()
 
 	ss, sealHash := testSignedSeal(t, priv, `<script>alert(1)</script>`)
 	if _, err := lc.PublishSeal(ss, sealHash, pub); err != nil {
@@ -91,8 +101,7 @@ func TestSubmitRejectsExtraField(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	srv := httptest.NewServer(logd.New(logd.Config{Log: l, PrivKey: priv, PublicKey: pub}).Handler())
-	defer srv.Close()
+	_, srv := startLogd(t, logd.Config{Log: l, PrivKey: priv, PublicKey: pub})
 	body := []byte(`{"seal_hash":"x","canonical_b64":"e30=","submitter_id":"t","submitted_at":1,"supersedes":"","signature_b64":"AA==","public_key_b64":"AA==","extra":"nope"}`)
 	res, err := http.Post(srv.URL+"/submit", "application/json", bytes.NewReader(body))
 	if err != nil {
@@ -112,26 +121,39 @@ func TestTamperedDBFailsVerify(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	srv := httptest.NewServer(logd.New(logd.Config{Log: l, PrivKey: priv, PublicKey: pub}).Handler())
-	defer srv.Close()
+	s, srv := startLogd(t, logd.Config{Log: l, PrivKey: priv, PublicKey: pub})
 	lc := logclient.NewHTTP(srv.URL, priv, srv.Client())
 	ss, sealHash := testSignedSeal(t, priv, "safe-name")
-	lc.PublishSeal(ss, sealHash, pub)
+	if _, err := lc.PublishSeal(ss, sealHash, pub); err != nil {
+		t.Fatal(err)
+	}
 	rs := testResultSet()
 	v, _ := decide.Evaluate(ss.Seal, rs)
 	doc, _ := attestation.Build(sealHash, ss.Seal, rs, v)
 	signed, _ := attestation.Sign(doc, priv)
-	lc.PublishAttestation(signed)
-	_ = l.Close()
+	if _, err := lc.PublishAttestation(signed); err != nil {
+		t.Fatal(err)
+	}
+	srv.Close()
+	if err := s.Close(); err != nil {
+		t.Fatal(err)
+	}
 	if err := tamperCanonicalInSQLite(dbPath); err != nil {
 		t.Fatal(err)
 	}
-	l2, _ := log.Open(dbPath)
-	srv2 := httptest.NewServer(logd.New(logd.Config{Log: l2, PrivKey: priv, PublicKey: pub}).Handler())
-	defer srv2.Close()
+	l2, err := log.Open(dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, srv2 := startLogd(t, logd.Config{Log: l2, PrivKey: priv, PublicKey: pub})
 	attPath := filepath.Join(dir, "att.json")
-	ab, _ := json.Marshal(signed.Document)
-	os.WriteFile(attPath, ab, 0o644)
+	ab, err := json.Marshal(signed.Document)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(attPath, ab, 0o644); err != nil {
+		t.Fatal(err)
+	}
 	report, err := verify.Run(attPath, verify.Options{LogURL: srv2.URL})
 	if err != nil {
 		t.Fatal(err)
@@ -143,18 +165,24 @@ func TestTamperedDBFailsVerify(t *testing.T) {
 
 func TestBadgeShowsAttemptCount(t *testing.T) {
 	priv, pub := testKey(t)
-	l, _ := log.Open(filepath.Join(t.TempDir(), "l.sqlite"))
-	srv := httptest.NewServer(logd.New(logd.Config{Log: l, PrivKey: priv, PublicKey: pub}).Handler())
-	defer srv.Close()
+	l, err := log.Open(filepath.Join(t.TempDir(), "l.sqlite"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, srv := startLogd(t, logd.Config{Log: l, PrivKey: priv, PublicKey: pub})
 	lc := logclient.NewHTTP(srv.URL, priv, srv.Client())
 	ss, sealHash := testSignedSeal(t, priv, "badge-test")
-	lc.PublishSeal(ss, sealHash, pub)
+	if _, err := lc.PublishSeal(ss, sealHash, pub); err != nil {
+		t.Fatal(err)
+	}
 	rs := testResultSet()
 	for i := 0; i < 3; i++ {
 		v, _ := decide.Evaluate(ss.Seal, rs)
 		doc, _ := attestation.Build(sealHash, ss.Seal, rs, v)
 		signed, _ := attestation.Sign(doc, priv)
-		lc.PublishAttestation(signed)
+		if _, err := lc.PublishAttestation(signed); err != nil {
+			t.Fatal(err)
+		}
 	}
 	res, err := http.Get(srv.URL + "/seal/" + strings.ReplaceAll(sealHash, ":", "%3A") + "/badge.svg")
 	if err != nil {
@@ -165,7 +193,9 @@ func TestBadgeShowsAttemptCount(t *testing.T) {
 		t.Fatal(res.StatusCode)
 	}
 	var buf bytes.Buffer
-	buf.ReadFrom(res.Body)
+	if _, err := buf.ReadFrom(res.Body); err != nil {
+		t.Fatal(err)
+	}
 	if !strings.Contains(buf.String(), "verified (3)") {
 		t.Fatalf("badge=%s", buf.String())
 	}
@@ -174,27 +204,35 @@ func TestBadgeShowsAttemptCount(t *testing.T) {
 func TestSiteEscapesScriptSubject(t *testing.T) {
 	priv, pub := testKey(t)
 	dir := t.TempDir()
-	l, _ := log.Open(filepath.Join(dir, "l.sqlite"))
+	l, err := log.Open(filepath.Join(dir, "l.sqlite"))
+	if err != nil {
+		t.Fatal(err)
+	}
 	spec := filepath.Join(dir, "spec.md")
-	os.WriteFile(spec, []byte("# Spec\n"), 0o644)
+	if err := os.WriteFile(spec, []byte("# Spec\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
 	siteRenderer, err := site.New(l, pub, spec, "http://test")
 	if err != nil {
 		t.Fatal(err)
 	}
-	srv := httptest.NewServer(logd.New(logd.Config{
+	_, srv := startLogd(t, logd.Config{
 		Log: l, PrivKey: priv, PublicKey: pub, Site: siteRenderer,
-	}).Handler())
-	defer srv.Close()
+	})
 	lc := logclient.NewHTTP(srv.URL, priv, srv.Client())
 	ss, sealHash := testSignedSeal(t, priv, `<script>alert(1)</script>`)
-	lc.PublishSeal(ss, sealHash, pub)
+	if _, err := lc.PublishSeal(ss, sealHash, pub); err != nil {
+		t.Fatal(err)
+	}
 	res, err := http.Get(srv.URL + "/seal/" + strings.ReplaceAll(sealHash, ":", "%3A"))
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer res.Body.Close()
 	var buf bytes.Buffer
-	buf.ReadFrom(res.Body)
+	if _, err := buf.ReadFrom(res.Body); err != nil {
+		t.Fatal(err)
+	}
 	if strings.Contains(buf.String(), "<script>") {
 		t.Fatalf("xss in page: %s", buf.String())
 	}
@@ -218,7 +256,9 @@ func testSignedSeal(t *testing.T, priv ed25519.PrivateKey, subjectName string) (
 		DecisionRule: seal.DecisionRule{Expression: "acc.mean >= 0.5", PrimaryMetric: "acc", Threshold: "0.5", Comparison: ">=", Precision: 1},
 		PlannedAttempts: 3, AnalysisPlan: "t",
 	}
-	s.Validate()
+	if err := s.Validate(); err != nil {
+		t.Fatal(err)
+	}
 	ss, _ := s.ForSign().Sign(priv)
 	hash, _ := ss.Seal.CanonicalHash()
 	return ss, hash
@@ -251,7 +291,7 @@ func tamperCanonicalInSQLite(path string) error {
 }
 
 func bytesIndex(b, sub []byte) int {
-	for i := 0; i+len(sub) <= len(b); i++ {
+	for i := 0; i + len(sub) <= len(b); i++ {
 		ok := true
 		for j := range sub {
 			if b[i+j] != sub[j] {

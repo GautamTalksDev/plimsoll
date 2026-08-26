@@ -32,6 +32,7 @@ import (
 	"github.com/GautamTalksDev/plimsoll/internal/logclient"
 	"github.com/GautamTalksDev/plimsoll/internal/payload"
 	"github.com/GautamTalksDev/plimsoll/internal/seal"
+	"github.com/GautamTalksDev/plimsoll/internal/testbin"
 )
 
 func TestE2ESealAttestLocal(t *testing.T) {
@@ -119,7 +120,7 @@ func TestOutboundPayloadAllowlist(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer lc.Close()
+	defer func() { _ = lc.Close() }()
 	var payloads [][]byte
 	lc.SetRecordHook(func(b []byte) { payloads = append(payloads, append([]byte(nil), b...)) })
 
@@ -230,14 +231,7 @@ func testSeal() *seal.Seal {
 }
 
 func buildPlimsoll(t *testing.T) string {
-	t.Helper()
-	out := filepath.Join(t.TempDir(), "plimsoll")
-	cmd := exec.Command("go", "build", "-o", out, ".")
-	cmd.Dir = "."
-	if b, err := cmd.CombinedOutput(); err != nil {
-		t.Fatalf("build: %v\n%s", err, b)
-	}
-	return out
+	return testbin.Plimsoll(t)
 }
 
 func runCmd(bin, dir string, args ...string) (string, error) {

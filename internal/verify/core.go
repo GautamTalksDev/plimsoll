@@ -349,17 +349,17 @@ func buildDisclosure(m *material) *Disclosure {
 
 func formatDisclosure(d *Disclosure) string {
 	var b strings.Builder
-	b.WriteString(fmt.Sprintf("attempt %d of %d", d.AttemptNo, d.TotalAttempts))
+	fmt.Fprintf(&b, "attempt %d of %d", d.AttemptNo, d.TotalAttempts)
 	if d.TotalAttempts > 0 {
 		b.WriteString("; verdicts:")
 		for _, a := range d.Attempts {
-			b.WriteString(fmt.Sprintf(" #%d=%s", a.AttemptNo, a.Verdict))
+			fmt.Fprintf(&b, " #%d=%s", a.AttemptNo, a.Verdict)
 		}
 	}
 	if d.Supersedes != "" {
-		b.WriteString(fmt.Sprintf("; supersedes %s", d.Supersedes))
+		fmt.Fprintf(&b, "; supersedes %s", d.Supersedes)
 		if d.SupersedeReason != "" {
-			b.WriteString(fmt.Sprintf(" (%s)", d.SupersedeReason))
+			fmt.Fprintf(&b, " (%s)", d.SupersedeReason)
 		}
 	}
 	return b.String()

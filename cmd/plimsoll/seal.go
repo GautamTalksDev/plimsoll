@@ -109,7 +109,7 @@ func runSeal(out *cliout.Printer, file string, publish bool, keyPath, logPath, l
 		if err != nil {
 			return opErrf("log: %v", err)
 		}
-		defer lc.Close()
+		defer func() { _ = lc.Close() }()
 		res, err := lc.PublishSeal(signed, sealHash, pub)
 		if err != nil {
 			return opErrf("publish: %v", err)

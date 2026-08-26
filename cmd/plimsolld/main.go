@@ -15,11 +15,15 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
+	"syscall"
+	"time"
 
 	"github.com/GautamTalksDev/plimsoll/internal/keys"
 	"github.com/GautamTalksDev/plimsoll/internal/logd"
@@ -47,18 +51,46 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer l.Close()
 
 	siteRenderer, err := site.New(l, pub, *specPath, *baseURL)
 	if err != nil {
+		_ = l.Close()
 		log.Fatal(err)
 	}
-	srv := logd.New(logd.Config{
+	logSrv := logd.New(logd.Config{
 		Log: l, PrivKey: priv, PublicKey: pub,
 		Site: siteRenderer,
 	})
-	log.Printf("plimsolld listening on %s", *addr)
-	if err := http.ListenAndServe(*addr, srv.Handler()); err != nil {
-		log.Fatal(err)
+	defer func() { _ = logSrv.Close() }()
+
+	httpSrv := &http.Server{
+		Addr:              *addr,
+		Handler:           logSrv.Handler(),
+		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       30 * time.Second,
+		WriteTimeout:      60 * time.Second,
+		IdleTimeout:       120 * time.Second,
+	}
+
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	errCh := make(chan error, 1)
+	go func() {
+		log.Printf("plimsolld listening on %s", *addr)
+		errCh <- httpSrv.ListenAndServe()
+	}()
+
+	select {
+	case <-ctx.Done():
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := httpSrv.Shutdown(shutdownCtx); err != nil {
+			log.Printf("shutdown: %v", err)
+		}
+	case err := <-errCh:
+		if err != nil && err != http.ErrServerClosed {
+			log.Fatal(err)
+		}
 	}
 }

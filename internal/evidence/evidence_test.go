@@ -27,6 +27,7 @@ import (
 	"github.com/GautamTalksDev/plimsoll/internal/keys"
 	"github.com/GautamTalksDev/plimsoll/internal/log"
 	"github.com/GautamTalksDev/plimsoll/internal/logd"
+	"github.com/GautamTalksDev/plimsoll/internal/testbin"
 	"github.com/GautamTalksDev/plimsoll/internal/verify"
 )
 
@@ -149,10 +150,11 @@ func publishForEvidence(t *testing.T) *evidenceEnv {
 	if err != nil {
 		t.Fatal(err)
 	}
-	srv := httptest.NewServer(logd.New(logd.Config{Log: l, PrivKey: priv, PublicKey: pub}).Handler())
+	logSrv := logd.New(logd.Config{Log: l, PrivKey: priv, PublicKey: pub})
+	srv := httptest.NewServer(logSrv.Handler())
 	t.Cleanup(func() {
 		srv.Close()
-		_ = l.Close()
+		_ = logSrv.Close()
 	})
 	doc, err := verify.LoadAttestation(filepath.Join(dir, "e2e-claim.attest.json"))
 	if err != nil {
@@ -162,14 +164,7 @@ func publishForEvidence(t *testing.T) *evidenceEnv {
 }
 
 func buildPlimsoll(t *testing.T) string {
-	t.Helper()
-	out := filepath.Join(t.TempDir(), "plimsoll")
-	cmd := exec.Command("go", "build", "-o", out, ".")
-	cmd.Dir = filepath.Join("..", "..", "cmd", "plimsoll")
-	if b, err := cmd.CombinedOutput(); err != nil {
-		t.Fatalf("build: %v\n%s", err, b)
-	}
-	return out
+	return testbin.Plimsoll(t)
 }
 
 func runPlimsoll(bin, dir string, args ...string) (string, error) {
