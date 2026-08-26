@@ -347,6 +347,24 @@ Current security guidance tells organizations to avoid depending on single-maint
 - **The spec is CC0.** If this project is abandoned, someone else can implement it cleanly, and existing logs remain verifiable.
 - **Anyone can run a log.** The verifier already points anywhere.
 
+### Verifying a release
+
+Download `SHA256SUMS` and `SHA256SUMS.sigstore.json` from any release, then:
+
+```bash
+cosign verify-blob \
+  --new-bundle-format \
+  --bundle SHA256SUMS.sigstore.json \
+  --certificate-identity-regexp 'https://github.com/GautamTalksDev/plimsoll/.*' \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+  SHA256SUMS
+```
+
+Expect `Verified OK`. Then check your binary against `SHA256SUMS` with `sha256sum -c`.
+
+Every artifact in a release is signed the same way; substitute its own
+`.sigstore.json` bundle. `--new-bundle-format` is required for cosign 2.4.x.
+
 Security reports go to the address in [SECURITY.md](SECURITY.md) under a 90-day coordinated disclosure policy.
 
 ---
