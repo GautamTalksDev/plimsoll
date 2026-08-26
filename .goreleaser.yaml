@@ -39,15 +39,26 @@ builds:
       - arm64
 
 archives:
-  - formats: [binary]
-    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+  - id: plimsoll
+    ids: [plimsoll]
+    formats: [binary]
+    # Scoop requires a Windows archive; bare binaries are fine for Unix + cosign.
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    name_template: "{{ .Binary }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+  - id: plimsolld
+    ids: [plimsolld]
+    formats: [binary]
+    name_template: "{{ .Binary }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
 
 checksum:
   name_template: SHA256SUMS
   algorithm: sha256
 
 signs:
-  - cmd: cosign
+  - id: binaries
+    cmd: cosign
     signature: "${artifact}.sigstore.json"
     artifacts: binary
     args:
@@ -55,7 +66,17 @@ signs:
       - --bundle=${signature}
       - ${artifact}
       - --yes
-  - cmd: cosign
+  - id: archives
+    cmd: cosign
+    signature: "${artifact}.sigstore.json"
+    artifacts: archive
+    args:
+      - sign-blob
+      - --bundle=${signature}
+      - ${artifact}
+      - --yes
+  - id: checksum
+    cmd: cosign
     signature: "${artifact}.sigstore.json"
     artifacts: checksum
     args:
@@ -72,6 +93,7 @@ changelog:
 
 brews:
   - name: plimsoll
+    ids: [plimsoll]
     repository:
       owner: gautamtalksdev
       name: homebrew-plimsoll
@@ -86,6 +108,7 @@ brews:
 
 scoops:
   - name: plimsoll
+    ids: [plimsoll]
     repository:
       owner: gautamtalksdev
       name: scoop-plimsoll
