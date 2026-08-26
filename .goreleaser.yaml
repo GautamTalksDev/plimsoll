@@ -95,8 +95,9 @@ brews:
   - name: plimsoll
     ids: [plimsoll]
     repository:
-      owner: gautamtalksdev
+      owner: GautamTalksDev
       name: homebrew-plimsoll
+      token: "{{ .Env.TAP_GITHUB_TOKEN }}"
     directory: Formula
     homepage: "https://github.com/GautamTalksDev/plimsoll"
     description: "Verify evaluations you ran with your own tools"
@@ -110,8 +111,9 @@ scoops:
   - name: plimsoll
     ids: [plimsoll]
     repository:
-      owner: gautamtalksdev
+      owner: GautamTalksDev
       name: scoop-plimsoll
+      token: "{{ .Env.TAP_GITHUB_TOKEN }}"
     homepage: "https://github.com/GautamTalksDev/plimsoll"
     description: "Verify evaluations you ran with your own tools"
     license: Apache-2.0
