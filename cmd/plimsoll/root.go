@@ -31,6 +31,15 @@ func newRoot() *cobra.Command {
 	root := &cobra.Command{
 		Use:   "plimsoll",
 		Short: "Verify evaluations you ran with your own tools",
+		Long: `Verify evaluations you ran with your own tools.
+
+PLIMSOLL never sees your eval data. Datasets, models, prompts and outputs
+never leave your machine; only digests, metadata and verdicts are published.
+
+Without --publish, no command makes any network request. There is no
+telemetry, no version check and no analytics.
+
+A sealed decision rule cannot be amended by any flag, setting or tier.`,
 	}
 	root.PersistentFlags().BoolVar(&flags.json, "json", false, "machine-readable JSON output")
 	root.AddCommand(newSealCmd(flags))
