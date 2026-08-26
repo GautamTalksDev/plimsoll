@@ -6,6 +6,7 @@
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/GautamTalksDev/plimsoll/badge)](https://scorecard.dev/viewer/?uri=github.com/GautamTalksDev/plimsoll)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 [![Spec](https://img.shields.io/badge/spec-CC0--1.0-lightgrey)](SPEC-PREREG.md)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22107450.svg)](https://doi.org/10.5281/zenodo.22107450)
 
 > **PLIMSOLL never sees your eval data.** We store cryptographic digests, metadata, and verdicts. Datasets, models, prompts, and outputs never leave your machine.
 >

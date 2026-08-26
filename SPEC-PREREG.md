@@ -4,7 +4,7 @@
 **Date:** 2026-08-25
 **License:** [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/)
 **SPDX-License-Identifier:** CC0-1.0
-**DOI:** *not yet issued — record here on first Zenodo deposit*
+**DOI:** [10.5281/zenodo.22107451](https://doi.org/10.5281/zenodo.22107451) (this version) · [10.5281/zenodo.22107450](https://doi.org/10.5281/zenodo.22107450) (all versions)
 
 This document is a specification. It is not a user guide and not a
 description of one codebase. A conforming implementation MAY be written
@@ -677,13 +677,15 @@ not equal `0.821`.
 
 ## 14. Defensive publication
 
-This file is the specification to be deposited as:
+This file was deposited as:
 
 **Title:** PLIMSOLL Pre-Registration and Attestation Specification, v1
 **License:** CC0-1.0
 **Version identifier:** prereg-v1
-**Git tag (intended):** v0.1.0-spec
+**Git tag:** v0.1.0-spec
+**Date:** 26 August 2026
+**DOI (all versions):** 10.5281/zenodo.22107450
+**DOI (this version):** 10.5281/zenodo.22107451
+**Record:** https://zenodo.org/records/22107451
 
-After deposit, replace the DOI line at the top of this file and cite
-the same DOI in the project README. Archive the public URL of this
-file in the Internet Archive Wayback Machine.
+Archive the public URL of this file in the Internet Archive Wayback Machine.

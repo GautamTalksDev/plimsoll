@@ -6,6 +6,7 @@
 **Date:** 26 August 2026
 **Specification version:** `prereg-v1`
 **License:** CC0 1.0 Universal (CC0-1.0)
+**DOI:** [10.5281/zenodo.22107450](https://doi.org/10.5281/zenodo.22107450) (all versions) · [10.5281/zenodo.22107451](https://doi.org/10.5281/zenodo.22107451) (this version)
 **Reference implementation:** https://github.com/GautamTalksDev/plimsoll (Apache-2.0)
 
 To the extent possible under law, the author has waived all copyright and related or neighboring rights to this work under CC0 1.0. This note is published to place the mechanism it describes in the public domain and in the public record.

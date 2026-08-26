@@ -29,14 +29,13 @@ The specification [SPEC-PREREG.md](../SPEC-PREREG.md) is versioned
 `prereg-v1` and licensed CC0-1.0 so a third party can reimplement it
 without reading this repository's Go code.
 
-Intended deposit (to be completed on first public release of the spec):
+Deposited 26 August 2026:
 
 - **Title:** PLIMSOLL Pre-Registration and Attestation Specification, v1
 - **License:** CC0-1.0
 - **Git tag:** `v0.1.0-spec`
-- **DOI:** *not yet issued*
-- **Wayback archive:** *not yet captured* (requires a public URL)
-
-This heading is dated 2026-08-25. Replace the DOI and Wayback lines
-when the deposit and archive exist. Do not back-date them.
+- **DOI (all versions):** 10.5281/zenodo.22107450
+- **DOI (this version):** 10.5281/zenodo.22107451
+- **Record:** https://zenodo.org/records/22107451
+- **Wayback archive:** *pending*
 
