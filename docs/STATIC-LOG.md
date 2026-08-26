@@ -18,6 +18,15 @@ plimsoll-static -db log.sqlite -out ./public -key log-signing.json \
 | Path | Contents |
 | --- | --- |
 | `/checkpoint` | Latest signed tree head (JSON), same shape as logd |
+
+**Known gap — empty log.** `plimsoll-static` only writes `/checkpoint` when the
+tree is non-empty, so before the first append the path falls through to the
+site's HTML instead of returning JSON. A verifier polling `/checkpoint` on a
+brand-new log gets HTML with a 200, not a tree-size-0 checkpoint. RFC 6962
+defines the empty-tree root, so a signed size-0 checkpoint is the correct
+answer; publishing one requires the log signing key, which the generator does
+not hold, so the fix belongs in `plimsoll-append` at bootstrap. Tracked; must
+be closed before any third party is asked to verify against this log.
 | `/checkpoints/{tree_size}` | Every historical checkpoint (one file per size) |
 | `/entries/{idx}` | One Merkle leaf |
 | `/entries/index.json` | First page of entries (100 per page); further pages are `index-N.json` |
