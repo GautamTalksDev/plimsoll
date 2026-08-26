@@ -37,5 +37,6 @@ Deposited 26 August 2026:
 - **DOI (all versions):** 10.5281/zenodo.22107450
 - **DOI (this version):** 10.5281/zenodo.22107451
 - **Record:** https://zenodo.org/records/22107451
-- **Wayback archive:** *pending*
+- **Wayback archive:** https://web.archive.org/web/20260826072809/https://zenodo.org/records/22107451
+- **Wayback (raw SPEC at `v0.1.0-spec`):** https://web.archive.org/web/20260826073230/https://raw.githubusercontent.com/GautamTalksDev/plimsoll/v0.1.0-spec/SPEC-PREREG.md
 

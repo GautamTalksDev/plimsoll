@@ -688,4 +688,6 @@ This file was deposited as:
 **DOI (this version):** 10.5281/zenodo.22107451
 **Record:** https://zenodo.org/records/22107451
 
-Archive the public URL of this file in the Internet Archive Wayback Machine.
+**Wayback archive (Zenodo record):** https://web.archive.org/web/20260826072809/https://zenodo.org/records/22107451
+
+**Wayback archive (raw SPEC at `v0.1.0-spec`):** https://web.archive.org/web/20260826073230/https://raw.githubusercontent.com/GautamTalksDev/plimsoll/v0.1.0-spec/SPEC-PREREG.md
