@@ -1,5 +1,5 @@
 
-## UX gap: no way to hash a prompt or config file
+## CLOSED 2026-08-27: no way to hash a prompt or config file
 
 `seal` computes `dataset.sha256` from `dataset.path` automatically, but
 `subject.system_under_test.prompt_sha256` and `config_sha256` must be supplied
@@ -12,6 +12,13 @@ A pilot team hits this inside their first five minutes.
 
 Fix: add `plimsoll hash <file>` printing the canonical digest, and/or accept
 `prompt_path` / `config_path` in the seal file like `dataset.path`.
+
+**Fixed** by `plimsoll hash <file>`, with three explicit modes: text by default
+for prompts, `--json-doc` for config documents, `--dataset` for evaluation
+sets. The mode is never inferred from the contents, because a prompt whose
+entire body is `true` is valid JSON and hashing it as a boolean rather than as
+text would be silently wrong. Digests are pinned in a test against the seal
+published to the public log at index 3.
 
 ## BUG (blocking pilots): seal paths are unreachable over HTTP
 

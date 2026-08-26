@@ -138,6 +138,17 @@ planned_attempts: 1
 analysis_plan: "Single run. No re-runs. Failure is reported as failure."
 ```
 
+First compute the two digests your seal needs. Both are computed locally and
+nothing is uploaded:
+
+```bash
+plimsoll hash ./prompt.txt              # -> prompt_sha256
+plimsoll hash ./harness-config.json --json-doc   # -> config_sha256
+```
+
+Paste those into the file above. The dataset digest is filled in for you from
+`dataset.path` when you seal.
+
 Seal it, run your eval, attest:
 
 ```bash
@@ -246,7 +257,7 @@ V3 deserves a note. Your own signature on a timestamp proves nothing, because yo
 
 ```
 cmd/
-  plimsoll/          the CLI: seal, attest, await, verify, verify-log, supersede, evidence
+  plimsoll/          the CLI: hash, seal, attest, await, verify, verify-log, supersede, evidence
   plimsolld/         reference log server (self-host; not the public CDN log)
   plimsoll-static/   builds a static file tree from log.sqlite for CDN hosting
   plimsoll-append/   Action trust-gate: validate + append + sign checkpoint

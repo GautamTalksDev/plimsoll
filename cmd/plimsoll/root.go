@@ -43,6 +43,7 @@ telemetry, no version check and no analytics.
 A sealed decision rule cannot be amended by any flag, setting or tier.`,
 	}
 	root.PersistentFlags().BoolVar(&flags.json, "json", false, "machine-readable JSON output")
+	root.AddCommand(newHashCmd(flags))
 	root.AddCommand(newSealCmd(flags))
 	root.AddCommand(newAttestCmd(flags))
 	root.AddCommand(newAwaitCmd(flags))
