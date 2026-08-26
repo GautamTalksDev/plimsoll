@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package log implements an RFC 6962-style Merkle append-only log over
-// seals and attestations. SQLite persistence is unavailable under GOOS=js.
+//go:build js
+
 package log
+
+// Log is a stub for WASM builds (no SQLite).
+type Log struct{}
