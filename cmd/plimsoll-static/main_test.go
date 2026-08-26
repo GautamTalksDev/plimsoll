@@ -25,6 +25,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -70,7 +71,11 @@ func TestPlimsollStatic(t *testing.T) {
 	assertNoRowContent(t, out1)
 
 	// CLI binary path.
-	bin := filepath.Join(dir, "plimsoll-static")
+	binName := "plimsoll-static"
+	if runtime.GOOS == "windows" {
+		binName += ".exe"
+	}
+	bin := filepath.Join(dir, binName)
 	build := exec.Command("go", "build", "-o", bin, ".")
 	build.Dir = filepath.Join(repoRoot(t), "cmd", "plimsoll-static")
 	if out, err := build.CombinedOutput(); err != nil {
