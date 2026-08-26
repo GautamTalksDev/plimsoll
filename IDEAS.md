@@ -57,3 +57,19 @@ so it hung parsing HTML as JSON instead of failing fast.
 Mitigation already in place: clients should request the explicit `index.json`
 and treat a non-JSON body as an error rather than trusting the status code.
 Worth adding a real 404 page and, if Pages allows it, a proper status.
+
+## internal/logmerkle has no dedicated tests
+
+Merkle arithmetic is covered only through internal/log, which appends 10,000
+entries and verifies inclusion and consistency proofs, and through live
+verification (V3, V4, V9 against the public log, plus the WASM verifier
+agreeing independently). So it is exercised, not unexercised.
+
+What is missing is RFC 6962 published reference vectors. Those would catch a
+failure the current tests structurally cannot: the implementation being
+self-consistently wrong, since the log and the verifier share the same code
+and would agree with each other while both being incorrect.
+
+Narrow, real, and not urgent while nobody outside this project depends on the
+proofs. Do it before the first external party verifies against the log in
+anger.
