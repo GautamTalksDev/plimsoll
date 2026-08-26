@@ -78,8 +78,8 @@ func ConsistencyExport(cp log.ConsistencyProof) consistencyJSON {
 	}
 	return consistencyJSON{
 		OldSize: cp.OldSize, NewSize: cp.NewSize,
-		OldRoot: fmt.Sprintf("%x", cp.OldRoot),
-		NewRoot: fmt.Sprintf("%x", cp.NewRoot),
+		OldRoot:   fmt.Sprintf("%x", cp.OldRoot),
+		NewRoot:   fmt.Sprintf("%x", cp.NewRoot),
 		AuditPath: audit,
 	}
 }

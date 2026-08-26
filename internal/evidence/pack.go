@@ -27,18 +27,18 @@ const Version = "plimsoll-evidence-v1"
 
 // Pack is a self-contained evidence artifact for one seal.
 type Pack struct {
-	Version            string           `json:"version"`
-	GeneratedAt        int64            `json:"generated_at"`
-	LogURL             string           `json:"log_url,omitempty"`
-	LogPublicKey       string           `json:"log_public_key"`
-	BrowserVerifierURL string           `json:"browser_verifier_url"`
-	SealHash           string           `json:"seal_hash"`
-	Preregistration    Preregistration  `json:"preregistration"`
-	SealInclusion      InclusionRecord  `json:"seal_inclusion"`
-	Attempts           []AttemptRecord  `json:"attempts"`
-	SupersedeChain     []SupersedeLink  `json:"supersede_chain,omitempty"`
-	Instructions       []string         `json:"instructions"`
-	VerifyURL          string           `json:"verify_url,omitempty"`
+	Version            string          `json:"version"`
+	GeneratedAt        int64           `json:"generated_at"`
+	LogURL             string          `json:"log_url,omitempty"`
+	LogPublicKey       string          `json:"log_public_key"`
+	BrowserVerifierURL string          `json:"browser_verifier_url"`
+	SealHash           string          `json:"seal_hash"`
+	Preregistration    Preregistration `json:"preregistration"`
+	SealInclusion      InclusionRecord `json:"seal_inclusion"`
+	Attempts           []AttemptRecord `json:"attempts"`
+	SupersedeChain     []SupersedeLink `json:"supersede_chain,omitempty"`
+	Instructions       []string        `json:"instructions"`
+	VerifyURL          string          `json:"verify_url,omitempty"`
 }
 
 // Preregistration is the signed pre-registration in human-readable and raw forms.
@@ -49,22 +49,22 @@ type Preregistration struct {
 
 // InclusionRecord binds a log entry to a signed checkpoint.
 type InclusionRecord struct {
-	LogIndex    int64                        `json:"log_index"`
-	SubmittedAt int64                        `json:"submitted_at"`
+	LogIndex    int64                         `json:"log_index"`
+	SubmittedAt int64                         `json:"submitted_at"`
 	Proof       sealfile.StoredInclusionProof `json:"inclusion_proof"`
-	Checkpoint  log.Checkpoint               `json:"checkpoint"`
+	Checkpoint  log.Checkpoint                `json:"checkpoint"`
 }
 
 // AttemptRecord is one attested evaluation attempt with proofs and verification.
 type AttemptRecord struct {
-	AttemptNo     int              `json:"attempt_no"`
-	SubmittedAt   int64            `json:"submitted_at"`
-	Verdict       string           `json:"verdict"`
-	ResultDigest  string           `json:"result_digest"`
-	Attestation   json.RawMessage  `json:"attestation"`
-	Inclusion     InclusionRecord  `json:"inclusion"`
-	Verification  verify.Report    `json:"verification"`
-	VerifyURL     string           `json:"verify_url"`
+	AttemptNo    int             `json:"attempt_no"`
+	SubmittedAt  int64           `json:"submitted_at"`
+	Verdict      string          `json:"verdict"`
+	ResultDigest string          `json:"result_digest"`
+	Attestation  json.RawMessage `json:"attestation"`
+	Inclusion    InclusionRecord `json:"inclusion"`
+	Verification verify.Report   `json:"verification"`
+	VerifyURL    string          `json:"verify_url"`
 }
 
 // SupersedeLink is one hop in a supersede chain (oldest first).

@@ -34,8 +34,8 @@ import (
 func TestPDFDeterministic(t *testing.T) {
 	env := publishForEvidence(t)
 	pack, err := evidence.Build(evidence.Options{
-		SealRef:  env.sealFile,
-		LogURL:   env.srv.URL,
+		SealRef:   env.sealFile,
+		LogURL:    env.srv.URL,
 		AttestDir: env.dir,
 	})
 	if err != nil {

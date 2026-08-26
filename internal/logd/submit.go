@@ -88,11 +88,11 @@ func (s *Server) submitSeal(w http.ResponseWriter, raw []byte) {
 
 func (s *Server) submitAttestation(w http.ResponseWriter, raw []byte) {
 	var in struct {
-		SealHash      string `json:"seal_hash"`
-		ResultDigest  string `json:"result_digest"`
-		Verdict       string `json:"verdict"`
-		CanonicalB64  string `json:"canonical_b64"`
-		SignatureB64  string `json:"signature_b64"`
+		SealHash     string `json:"seal_hash"`
+		ResultDigest string `json:"result_digest"`
+		Verdict      string `json:"verdict"`
+		CanonicalB64 string `json:"canonical_b64"`
+		SignatureB64 string `json:"signature_b64"`
 	}
 	if err := json.Unmarshal(raw, &in); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

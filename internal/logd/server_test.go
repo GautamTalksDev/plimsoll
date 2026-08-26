@@ -250,10 +250,10 @@ func testSignedSeal(t *testing.T, priv ed25519.PrivateKey, subjectName string) (
 				ConfigSHA256: "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
 			},
 		},
-		Dataset: seal.Dataset{N: 1, SHA256: "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", Sampling: "exhaustive"},
-		Harness: seal.Harness{Tool: "generic", Version: "1.0.0", ConfigSHA256: "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"},
-		Metrics: []seal.Metric{{ID: "acc", Name: "a", DefinitionURI: "https://example.invalid/m", Direction: "higher_is_better"}},
-		DecisionRule: seal.DecisionRule{Expression: "acc.mean >= 0.5", PrimaryMetric: "acc", Threshold: "0.5", Comparison: ">=", Precision: 1},
+		Dataset:         seal.Dataset{N: 1, SHA256: "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", Sampling: "exhaustive"},
+		Harness:         seal.Harness{Tool: "generic", Version: "1.0.0", ConfigSHA256: "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"},
+		Metrics:         []seal.Metric{{ID: "acc", Name: "a", DefinitionURI: "https://example.invalid/m", Direction: "higher_is_better"}},
+		DecisionRule:    seal.DecisionRule{Expression: "acc.mean >= 0.5", PrimaryMetric: "acc", Threshold: "0.5", Comparison: ">=", Precision: 1},
 		PlannedAttempts: 3, AnalysisPlan: "t",
 	}
 	if err := s.Validate(); err != nil {
@@ -291,7 +291,7 @@ func tamperCanonicalInSQLite(path string) error {
 }
 
 func bytesIndex(b, sub []byte) int {
-	for i := 0; i + len(sub) <= len(b); i++ {
+	for i := 0; i+len(sub) <= len(b); i++ {
 		ok := true
 		for j := range sub {
 			if b[i+j] != sub[j] {

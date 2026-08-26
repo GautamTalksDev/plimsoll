@@ -26,8 +26,8 @@ import (
 	"time"
 
 	"github.com/GautamTalksDev/plimsoll/internal/keys"
-	"github.com/GautamTalksDev/plimsoll/internal/logd"
 	ilog "github.com/GautamTalksDev/plimsoll/internal/log"
+	"github.com/GautamTalksDev/plimsoll/internal/logd"
 	"github.com/GautamTalksDev/plimsoll/internal/site"
 )
 

@@ -30,12 +30,12 @@ import (
 
 func newEvidenceCmd(root *rootFlags) *cobra.Command {
 	var (
-		format    string
-		outPath   string
-		logURL    string
-		logDB     string
-		logKey    string
-		verifier  string
+		format   string
+		outPath  string
+		logURL   string
+		logDB    string
+		logKey   string
+		verifier string
 	)
 	cmd := &cobra.Command{
 		Use:   "evidence",

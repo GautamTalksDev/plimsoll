@@ -65,7 +65,7 @@ func (s *Server) handleLatestCheckpoint(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	writeJSON(w, map[string]any{
-		"checkpoint":    toCheckpointJSON(cp),
+		"checkpoint":     toCheckpointJSON(cp),
 		"log_public_key": base64.StdEncoding.EncodeToString(s.PublicKey),
 	})
 }
@@ -123,14 +123,14 @@ func (s *Server) handleSealByHash(w http.ResponseWriter, r *http.Request) {
 	}
 	writeJSON(w, map[string]any{
 		"seal": map[string]any{
-			"index":           rec.Idx,
-			"seal_hash":       rec.SealHash,
-			"canonical_b64":   base64.StdEncoding.EncodeToString(rec.Canonical),
-			"signature_b64":   rec.Signature,
-			"public_key_b64":  rec.PublicKey,
-			"submitted_at":    rec.SubmittedAt,
-			"supersedes":      rec.Supersedes,
-			"leaf_hash":       rec.LeafHash,
+			"index":          rec.Idx,
+			"seal_hash":      rec.SealHash,
+			"canonical_b64":  base64.StdEncoding.EncodeToString(rec.Canonical),
+			"signature_b64":  rec.Signature,
+			"public_key_b64": rec.PublicKey,
+			"submitted_at":   rec.SubmittedAt,
+			"supersedes":     rec.Supersedes,
+			"leaf_hash":      rec.LeafHash,
 		},
 	})
 }

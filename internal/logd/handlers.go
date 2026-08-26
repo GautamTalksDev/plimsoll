@@ -132,11 +132,11 @@ func (s *Server) handleConsistencyProof(w http.ResponseWriter, r *http.Request) 
 		audit[i] = hex.EncodeToString(h)
 	}
 	writeJSON(w, map[string]any{
-		"old_size":   cp.OldSize,
-		"new_size":   cp.NewSize,
-		"old_root":   hex.EncodeToString(cp.OldRoot),
-		"new_root":   hex.EncodeToString(cp.NewRoot),
-		"audit_path": audit,
+		"old_size":       cp.OldSize,
+		"new_size":       cp.NewSize,
+		"old_root":       hex.EncodeToString(cp.OldRoot),
+		"new_root":       hex.EncodeToString(cp.NewRoot),
+		"audit_path":     audit,
 		"log_public_key": s.logPubB64(),
 	})
 }

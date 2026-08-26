@@ -24,7 +24,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
 )
 
 // SignCheckpoint signs the current tree head with priv and stores it.

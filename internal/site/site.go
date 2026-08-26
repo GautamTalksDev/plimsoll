@@ -115,9 +115,9 @@ func (r *Renderer) ServeSeal(w http.ResponseWriter, req *http.Request, sealHash 
 	r.render(w, map[string]any{
 		"Page": "seal", "Title": name, "SealHash": sealHash, "SubjectName": name,
 		"Supersedes": rec.Supersedes, "SupersedeReason": supReason, "Attempts": rows,
-		"BadgeURL": r.BaseURL + "/seal/" + strings.ReplaceAll(sealHash, ":", "%3A") + "/badge.svg",
+		"BadgeURL":  r.BaseURL + "/seal/" + strings.ReplaceAll(sealHash, ":", "%3A") + "/badge.svg",
 		"VerifyURL": verify.VerifyURL(vbase, r.BaseURL, ""),
-		"LogURL": r.BaseURL,
+		"LogURL":    r.BaseURL,
 	})
 }
 

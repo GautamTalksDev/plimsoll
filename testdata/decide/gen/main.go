@@ -13,7 +13,8 @@
 // limitations under the License.
 
 // One-shot fixture generator. Run from repo root:
-//   go run ./testdata/decide/gen/
+//
+//	go run ./testdata/decide/gen/
 package main
 
 import (
@@ -24,16 +25,18 @@ import (
 )
 
 type fixture struct {
-	ID         string      `json:"id"`
-	Seal       sealPart    `json:"seal"`
-	ResultSet  rsPart      `json:"result_set"`
-	Expected   interface{} `json:"-"`
+	ID        string      `json:"id"`
+	Seal      sealPart    `json:"seal"`
+	ResultSet rsPart      `json:"result_set"`
+	Expected  interface{} `json:"-"`
 }
 
 type sealPart struct {
-	CanonVersion string   `json:"canon_version"`
-	Dataset      struct{ N int `json:"n"` } `json:"dataset"`
-	Harness      struct {
+	CanonVersion string `json:"canon_version"`
+	Dataset      struct {
+		N int `json:"n"`
+	} `json:"dataset"`
+	Harness struct {
 		Tool    string `json:"tool"`
 		Version string `json:"version"`
 	} `json:"harness"`
@@ -44,9 +47,9 @@ type sealPart struct {
 }
 
 type rsPart struct {
-	Harness    string                 `json:"harness"`
-	HarnessVer string                 `json:"harness_ver"`
-	Metrics    map[string]metricPart  `json:"metrics"`
+	Harness    string                `json:"harness"`
+	HarnessVer string                `json:"harness_ver"`
+	Metrics    map[string]metricPart `json:"metrics"`
 }
 
 type metricPart struct {

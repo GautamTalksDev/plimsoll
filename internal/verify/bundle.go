@@ -55,8 +55,8 @@ func BuildAttestEnvelope(l *log.Log, logPub ed25519.PublicKey, att *attestation.
 		}
 		env.Consistency = &consistencyJSON{
 			OldSize: mat.consistency.OldSize, NewSize: mat.consistency.NewSize,
-			OldRoot: fmt.Sprintf("%x", mat.consistency.OldRoot),
-			NewRoot: fmt.Sprintf("%x", mat.consistency.NewRoot),
+			OldRoot:   fmt.Sprintf("%x", mat.consistency.OldRoot),
+			NewRoot:   fmt.Sprintf("%x", mat.consistency.NewRoot),
 			AuditPath: audit,
 		}
 	}
@@ -90,8 +90,8 @@ func BuildAttestEnvelopeHTTP(baseURL string, att *attestation.Document) (*Attest
 		}
 		env.Consistency = &consistencyJSON{
 			OldSize: mat.consistency.OldSize, NewSize: mat.consistency.NewSize,
-			OldRoot: fmt.Sprintf("%x", mat.consistency.OldRoot),
-			NewRoot: fmt.Sprintf("%x", mat.consistency.NewRoot),
+			OldRoot:   fmt.Sprintf("%x", mat.consistency.OldRoot),
+			NewRoot:   fmt.Sprintf("%x", mat.consistency.NewRoot),
 			AuditPath: audit,
 		}
 	}
@@ -147,7 +147,7 @@ func BuildBundleFromLog(l *log.Log, logPub ed25519.PublicKey, att *attestation.D
 		Attestation:               *att,
 		SealInclusionProof:        *mat.sealProof,
 		SealCheckpoint:            cpToJSON(*mat.sealCP),
-		AttestationInclusionProof:   *mat.attProof,
+		AttestationInclusionProof: *mat.attProof,
 		AttestationCheckpoint:     cpToJSON(*mat.attCP),
 		Attempts:                  mat.attempts,
 	}
@@ -162,8 +162,8 @@ func BuildBundleFromLog(l *log.Log, logPub ed25519.PublicKey, att *attestation.D
 		}
 		b.Consistency = &consistencyJSON{
 			OldSize: mat.consistency.OldSize, NewSize: mat.consistency.NewSize,
-			OldRoot: fmt.Sprintf("%x", mat.consistency.OldRoot),
-			NewRoot: fmt.Sprintf("%x", mat.consistency.NewRoot),
+			OldRoot:   fmt.Sprintf("%x", mat.consistency.OldRoot),
+			NewRoot:   fmt.Sprintf("%x", mat.consistency.NewRoot),
 			AuditPath: audit,
 		}
 	}
