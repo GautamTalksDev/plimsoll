@@ -12,5 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package verify will hold verification (offline-capable).
+// Package verify checks attestations against seals and a transparency log.
 package verify
