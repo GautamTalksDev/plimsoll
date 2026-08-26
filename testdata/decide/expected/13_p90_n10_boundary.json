@@ -1,0 +1,14 @@
+{
+  "result": "PASS",
+  "expression": "acc.p90 == 9",
+  "terms": [
+    {
+      "label": "acc.p90 == 9",
+      "identifier": "acc.p90",
+      "value": "9",
+      "comparator": "==",
+      "literal": "9",
+      "outcome": true
+    }
+  ]
+}

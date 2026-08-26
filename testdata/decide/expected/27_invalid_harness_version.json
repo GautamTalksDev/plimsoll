@@ -1,0 +1,8 @@
+{
+  "result": "INVALID",
+  "expression": "acc.mean >= 0.5",
+  "terms": [],
+  "reasons": [
+    "harness version \"9.9.9\" does not match sealed \"1.0.0\""
+  ]
+}

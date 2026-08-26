@@ -1,0 +1,14 @@
+{
+  "result": "FAIL",
+  "expression": "acc.pass_rate >= 0.666666",
+  "terms": [
+    {
+      "label": "acc.pass_rate >= 0.666666",
+      "identifier": "acc.pass_rate",
+      "value": "0.000001",
+      "comparator": ">=",
+      "literal": "0.666666",
+      "outcome": false
+    }
+  ]
+}

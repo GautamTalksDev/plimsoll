@@ -1,0 +1,27 @@
+{
+  "result": "PASS",
+  "expression": "acc.mean >= 0.7 AND loss.max <= 0.2",
+  "terms": [
+    {
+      "label": "acc.mean >= 0.7",
+      "identifier": "acc.mean",
+      "value": "0.7",
+      "comparator": ">=",
+      "literal": "0.7",
+      "outcome": true
+    },
+    {
+      "label": "loss.max <= 0.2",
+      "identifier": "loss.max",
+      "value": "0.2",
+      "comparator": "<=",
+      "literal": "0.2",
+      "outcome": true
+    },
+    {
+      "label": "AND",
+      "value": "true",
+      "outcome": true
+    }
+  ]
+}

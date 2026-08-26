@@ -1,0 +1,14 @@
+{
+  "result": "PASS",
+  "expression": "acc.count == 3",
+  "terms": [
+    {
+      "label": "acc.count == 3",
+      "identifier": "acc.count",
+      "value": "3",
+      "comparator": "==",
+      "literal": "3",
+      "outcome": true
+    }
+  ]
+}

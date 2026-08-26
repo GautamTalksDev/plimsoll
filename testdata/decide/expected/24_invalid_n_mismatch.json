@@ -1,0 +1,8 @@
+{
+  "result": "INVALID",
+  "expression": "acc.mean >= 0.5",
+  "terms": [],
+  "reasons": [
+    "metric \"acc\" has n=2, seal dataset.n=3"
+  ]
+}

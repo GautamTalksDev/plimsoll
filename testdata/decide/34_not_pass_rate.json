@@ -1,0 +1,32 @@
+{
+  "id": "34_not_pass_rate",
+  "seal": {
+    "canon_version": "plimsoll-canon-v1",
+    "dataset": {
+      "n": 4
+    },
+    "harness": {
+      "tool": "generic",
+      "version": "1.0.0"
+    },
+    "decision_rule": {
+      "expression": "NOT acc.pass_rate \u003c 0.5",
+      "precision": 2
+    }
+  },
+  "result_set": {
+    "harness": "generic",
+    "harness_ver": "1.0.0",
+    "metrics": {
+      "acc": {
+        "raw": [
+          "1",
+          "0",
+          "1",
+          "0"
+        ],
+        "n": 4
+      }
+    }
+  }
+}

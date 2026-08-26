@@ -1,0 +1,31 @@
+{
+  "id": "31_mean_fail_below",
+  "seal": {
+    "canon_version": "plimsoll-canon-v1",
+    "dataset": {
+      "n": 3
+    },
+    "harness": {
+      "tool": "generic",
+      "version": "1.0.0"
+    },
+    "decision_rule": {
+      "expression": "acc.mean \u003e= 0.9",
+      "precision": 2
+    }
+  },
+  "result_set": {
+    "harness": "generic",
+    "harness_ver": "1.0.0",
+    "metrics": {
+      "acc": {
+        "raw": [
+          "0.80",
+          "0.85",
+          "0.88"
+        ],
+        "n": 3
+      }
+    }
+  }
+}

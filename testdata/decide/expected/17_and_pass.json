@@ -1,0 +1,27 @@
+{
+  "result": "PASS",
+  "expression": "acc.mean >= 0.5 AND acc.min >= 0.4",
+  "terms": [
+    {
+      "label": "acc.mean >= 0.5",
+      "identifier": "acc.mean",
+      "value": "0.7",
+      "comparator": ">=",
+      "literal": "0.5",
+      "outcome": true
+    },
+    {
+      "label": "acc.min >= 0.4",
+      "identifier": "acc.min",
+      "value": "0.6",
+      "comparator": ">=",
+      "literal": "0.4",
+      "outcome": true
+    },
+    {
+      "label": "AND",
+      "value": "true",
+      "outcome": true
+    }
+  ]
+}

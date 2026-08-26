@@ -1,0 +1,8 @@
+{
+  "result": "INVALID",
+  "expression": "acc.mean >= 0",
+  "terms": null,
+  "reasons": [
+    "row 0 value \"not-a-decimal\": canonical: invalid decimal: \"not-a-decimal\""
+  ]
+}

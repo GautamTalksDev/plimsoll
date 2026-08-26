@@ -1,0 +1,27 @@
+{
+  "result": "PASS",
+  "expression": "(acc.p50 >= 7 OR acc.p90 >= 9)",
+  "terms": [
+    {
+      "label": "acc.p50 >= 7",
+      "identifier": "acc.p50",
+      "value": "5",
+      "comparator": ">=",
+      "literal": "7",
+      "outcome": false
+    },
+    {
+      "label": "acc.p90 >= 9",
+      "identifier": "acc.p90",
+      "value": "9",
+      "comparator": ">=",
+      "literal": "9",
+      "outcome": true
+    },
+    {
+      "label": "OR",
+      "value": "true",
+      "outcome": true
+    }
+  ]
+}

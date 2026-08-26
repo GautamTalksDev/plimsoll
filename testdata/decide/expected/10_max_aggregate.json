@@ -1,0 +1,14 @@
+{
+  "result": "PASS",
+  "expression": "acc.max <= 0.7",
+  "terms": [
+    {
+      "label": "acc.max <= 0.7",
+      "identifier": "acc.max",
+      "value": "0.7",
+      "comparator": "<=",
+      "literal": "0.7",
+      "outcome": true
+    }
+  ]
+}

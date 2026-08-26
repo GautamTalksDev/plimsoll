@@ -1,0 +1,14 @@
+{
+  "result": "PASS",
+  "expression": "acc.p10 == 1",
+  "terms": [
+    {
+      "label": "acc.p10 == 1",
+      "identifier": "acc.p10",
+      "value": "1",
+      "comparator": "==",
+      "literal": "1",
+      "outcome": true
+    }
+  ]
+}

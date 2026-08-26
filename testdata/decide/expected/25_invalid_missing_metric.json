@@ -1,0 +1,8 @@
+{
+  "result": "INVALID",
+  "expression": "loss.mean >= 0.5",
+  "terms": [],
+  "reasons": [
+    "metric \"loss\" named in expression is absent from results"
+  ]
+}

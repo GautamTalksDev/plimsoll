@@ -1,0 +1,14 @@
+{
+  "result": "PASS",
+  "expression": "acc.median >= 0.1",
+  "terms": [
+    {
+      "label": "acc.median >= 0.1",
+      "identifier": "acc.median",
+      "value": "0.1",
+      "comparator": ">=",
+      "literal": "0.1",
+      "outcome": true
+    }
+  ]
+}

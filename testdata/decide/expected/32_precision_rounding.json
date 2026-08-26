@@ -1,0 +1,14 @@
+{
+  "result": "PASS",
+  "expression": "acc.mean >= 0.333",
+  "terms": [
+    {
+      "label": "acc.mean >= 0.333",
+      "identifier": "acc.mean",
+      "value": "0.333",
+      "comparator": ">=",
+      "literal": "0.333",
+      "outcome": true
+    }
+  ]
+}

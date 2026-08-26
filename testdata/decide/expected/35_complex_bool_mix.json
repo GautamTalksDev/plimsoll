@@ -1,0 +1,40 @@
+{
+  "result": "PASS",
+  "expression": "acc.min >= 0.5 AND (acc.max <= 0.9 OR acc.mean >= 0.95)",
+  "terms": [
+    {
+      "label": "acc.min >= 0.5",
+      "identifier": "acc.min",
+      "value": "0.6",
+      "comparator": ">=",
+      "literal": "0.5",
+      "outcome": true
+    },
+    {
+      "label": "acc.max <= 0.9",
+      "identifier": "acc.max",
+      "value": "0.8",
+      "comparator": "<=",
+      "literal": "0.9",
+      "outcome": true
+    },
+    {
+      "label": "acc.mean >= 0.95",
+      "identifier": "acc.mean",
+      "value": "0.7",
+      "comparator": ">=",
+      "literal": "0.95",
+      "outcome": false
+    },
+    {
+      "label": "OR",
+      "value": "true",
+      "outcome": true
+    },
+    {
+      "label": "AND",
+      "value": "true",
+      "outcome": true
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "id": "29_invalid_no_finite_values",
+  "seal": {
+    "canon_version": "plimsoll-canon-v1",
+    "dataset": {
+      "n": 1
+    },
+    "harness": {
+      "tool": "generic",
+      "version": "1.0.0"
+    },
+    "decision_rule": {
+      "expression": "acc.mean \u003e= 0",
+      "precision": 0
+    }
+  },
+  "result_set": {
+    "harness": "generic",
+    "harness_ver": "1.0.0",
+    "metrics": {
+      "acc": {
+        "raw": [
+          "not-a-decimal"
+        ],
+        "n": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "result": "INVALID",
+  "expression": "acc.pass_rate >= 0.5",
+  "terms": null,
+  "reasons": [
+    "row 1 pass bit \"maybe\": decide: invalid pass bit"
+  ]
+}

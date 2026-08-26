@@ -12,5 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package decide will hold the deterministic decision engine.
 package decide
+
+import "testing"
+
+func TestReplayVerdict(t *testing.T) {
+	terms := []Term{{
+		Identifier: "acc.mean",
+		Comparator: ">=",
+		Literal:    "0.5",
+		Value:      "0.9",
+		Outcome:    true,
+	}}
+	got, err := ReplayVerdict("acc.mean >= 0.5", terms)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got != "PASS" {
+		t.Fatalf("got %q", got)
+	}
+	terms[0].Outcome = false
+	got, err = ReplayVerdict("acc.mean >= 0.5", terms)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got != "FAIL" {
+		t.Fatalf("got %q", got)
+	}
+}

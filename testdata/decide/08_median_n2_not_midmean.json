@@ -1,0 +1,30 @@
+{
+  "id": "08_median_n2_not_midmean",
+  "seal": {
+    "canon_version": "plimsoll-canon-v1",
+    "dataset": {
+      "n": 2
+    },
+    "harness": {
+      "tool": "generic",
+      "version": "1.0.0"
+    },
+    "decision_rule": {
+      "expression": "acc.median \u003e= 0.5",
+      "precision": 1
+    }
+  },
+  "result_set": {
+    "harness": "generic",
+    "harness_ver": "1.0.0",
+    "metrics": {
+      "acc": {
+        "raw": [
+          "0.9",
+          "0.1"
+        ],
+        "n": 2
+      }
+    }
+  }
+}

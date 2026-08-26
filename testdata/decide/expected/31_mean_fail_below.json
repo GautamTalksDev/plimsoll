@@ -1,0 +1,14 @@
+{
+  "result": "FAIL",
+  "expression": "acc.mean >= 0.9",
+  "terms": [
+    {
+      "label": "acc.mean >= 0.9",
+      "identifier": "acc.mean",
+      "value": "0.84",
+      "comparator": ">=",
+      "literal": "0.9",
+      "outcome": false
+    }
+  ]
+}

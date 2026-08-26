@@ -1,0 +1,31 @@
+{
+  "id": "15_count_aggregate",
+  "seal": {
+    "canon_version": "plimsoll-canon-v1",
+    "dataset": {
+      "n": 3
+    },
+    "harness": {
+      "tool": "generic",
+      "version": "1.0.0"
+    },
+    "decision_rule": {
+      "expression": "acc.count == 3",
+      "precision": 0
+    }
+  },
+  "result_set": {
+    "harness": "generic",
+    "harness_ver": "1.0.0",
+    "metrics": {
+      "acc": {
+        "raw": [
+          "1",
+          "2",
+          "3"
+        ],
+        "n": 3
+      }
+    }
+  }
+}

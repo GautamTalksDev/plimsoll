@@ -1,0 +1,14 @@
+{
+  "result": "FAIL",
+  "expression": "acc.median >= 0.5",
+  "terms": [
+    {
+      "label": "acc.median >= 0.5",
+      "identifier": "acc.median",
+      "value": "0.1",
+      "comparator": ">=",
+      "literal": "0.5",
+      "outcome": false
+    }
+  ]
+}

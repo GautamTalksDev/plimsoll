@@ -1,0 +1,14 @@
+{
+  "result": "PASS",
+  "expression": "acc.min >= 0.3",
+  "terms": [
+    {
+      "label": "acc.min >= 0.3",
+      "identifier": "acc.min",
+      "value": "0.3",
+      "comparator": ">=",
+      "literal": "0.3",
+      "outcome": true
+    }
+  ]
+}

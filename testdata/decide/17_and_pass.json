@@ -1,0 +1,30 @@
+{
+  "id": "17_and_pass",
+  "seal": {
+    "canon_version": "plimsoll-canon-v1",
+    "dataset": {
+      "n": 2
+    },
+    "harness": {
+      "tool": "generic",
+      "version": "1.0.0"
+    },
+    "decision_rule": {
+      "expression": "acc.mean \u003e= 0.5 AND acc.min \u003e= 0.4",
+      "precision": 1
+    }
+  },
+  "result_set": {
+    "harness": "generic",
+    "harness_ver": "1.0.0",
+    "metrics": {
+      "acc": {
+        "raw": [
+          "0.8",
+          "0.6"
+        ],
+        "n": 2
+      }
+    }
+  }
+}

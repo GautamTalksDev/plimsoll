@@ -1,0 +1,31 @@
+{
+  "id": "32_precision_rounding",
+  "seal": {
+    "canon_version": "plimsoll-canon-v1",
+    "dataset": {
+      "n": 3
+    },
+    "harness": {
+      "tool": "generic",
+      "version": "1.0.0"
+    },
+    "decision_rule": {
+      "expression": "acc.mean \u003e= 0.333",
+      "precision": 3
+    }
+  },
+  "result_set": {
+    "harness": "generic",
+    "harness_ver": "1.0.0",
+    "metrics": {
+      "acc": {
+        "raw": [
+          "0.333",
+          "0.333",
+          "0.334"
+        ],
+        "n": 3
+      }
+    }
+  }
+}
