@@ -1,4 +1,5 @@
 // Copyright 2026 The PLIMSOLL Authors
+// SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -84,6 +85,9 @@ func Generate(cfg Config) error {
 	// Served at /site.css. A file rather than an inline <style> block so the
 	// published CSP can forbid inline styles.
 	if err := writeBytes(filepath.Join(cfg.OutDir, "site.css"), []byte(site.StyleCSS)); err != nil {
+		return err
+	}
+	if err := writeBytes(filepath.Join(cfg.OutDir, "favicon.svg"), []byte(site.FaviconSVG)); err != nil {
 		return err
 	}
 	if err := writeRedirects(cfg.OutDir); err != nil {

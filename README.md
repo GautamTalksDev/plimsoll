@@ -292,7 +292,7 @@ go build ./...
 go test ./...
 ```
 
-Go 1.23 or later. No cgo, so cross-compilation is a single environment variable. The only direct dependencies are cobra and a pure-Go SQLite driver, which is not an accident. Every dependency in a security tool is a question you will eventually have to answer.
+Go 1.25 or later. No cgo, so cross-compilation is a single environment variable. The only direct dependencies are cobra and a pure-Go SQLite driver, which is not an accident. Every dependency in a security tool is a question you will eventually have to answer.
 
 For the browser verifier:
 

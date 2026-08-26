@@ -59,3 +59,13 @@ footer{
   color:var(--muted); font-size:13px;
 }
 `
+
+// FaviconSVG is served at /favicon.svg. A plumb line: a fixed vertical with a
+// weight at the bottom, which is the product. Monochrome via currentColor so
+// it reads in both light and dark browser chrome.
+const FaviconSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+<rect width="32" height="32" rx="6" fill="#0f6e56"/>
+<line x1="16" y1="5" x2="16" y2="19" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+<path d="M16 19 L21 23 L16 28 L11 23 Z" fill="#ffffff"/>
+</svg>
+`

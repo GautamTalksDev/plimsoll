@@ -1,4 +1,5 @@
 // Copyright 2026 The PLIMSOLL Authors
+// SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -282,6 +283,7 @@ const pageT = `<!DOCTYPE html>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{{.Title}} · PLIMSOLL</title>
 <link rel="stylesheet" href="/site.css">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 </head><body>
 <nav><a href="/">Problem</a><a href="/seals">Seals</a><a href="/verify/">Verify</a><a href="/spec">Spec</a><a href="/key">Public key</a><a href="/run-your-own">Run your own</a></nav>
 {{if eq .Page "home"}}
@@ -302,11 +304,11 @@ to that seal. <strong>The log assigns the attempt number, not the client.</stron
 attestations shows five attempts, with all five verdicts, permanently.</p>
 <div class="callout">
 <p>Iterating is normal. Hiding iteration is the problem. Multiple attempts verify as
-<code>VERIFIED WITH DISCLOSURES</code> — a pass that carries context, not a failure.</p>
+<code>VERIFIED WITH DISCLOSURES</code>: a pass that carries context, not a failure.</p>
 </div>
 <h2>What it never sees</h2>
 <p>Datasets, models, prompts and outputs never leave your machine. Only digests, metadata and
-verdicts cross the boundary. There is no override on a sealed decision rule — not by flag,
+verdicts cross the boundary. There is no override on a sealed decision rule, not by flag,
 config, or paid tier. Amendment is impossible; supersession with a public reason is mandatory.</p>
 <p><a href="/verify/">Verify an attestation</a> in your browser, or read the
 <a href="/spec">specification</a>.</p>
@@ -321,7 +323,7 @@ config, or paid tier. Amendment is impossible; supersession with a public reason
 <h1>{{.SubjectName}}</h1>
 <p><a href="{{.VerifyURL}}">Verify this seal</a> · <a href="{{.VerifyURL}}"><img src="{{.BadgeURL}}" alt="plimsoll badge"></a></p>
 <p><code>{{.SealHash}}</code></p>
-{{if .Supersedes}}<p>Supersedes <code>{{.Supersedes}}</code>{{if .SupersedeReason}} — {{.SupersedeReason}}{{end}}</p>{{end}}
+{{if .Supersedes}}<p>Supersedes <code>{{.Supersedes}}</code>{{if .SupersedeReason}}, {{.SupersedeReason}}{{end}}</p>{{end}}
 <h2>Attempts</h2>
 <table><tr><th>#</th><th>Verdict</th><th>Digest</th><th></th></tr>
 {{range .Attempts}}<tr><td>{{.No}}</td><td>{{.Verdict}}</td><td><code>{{.Digest}}</code></td><td><a href="{{.VerifyURL}}">Verify this</a></td></tr>
@@ -339,9 +341,14 @@ config, or paid tier. Amendment is impossible; supersession with a public reason
 {{end}}
 <footer>
 <p>The log is a public git repository. Anyone can clone it, replay every Merkle leaf and
-signature offline, and detect a rewritten history — no trust in this operator required.
+signature offline, and detect a rewritten history, with no trust in this operator required.
 Verification works against any conforming log, not only this one.</p>
+<p>Publishing to this log is permanent. Entries cannot be edited or deleted.
+Read the privacy notice before you publish.</p>
 <p>Specification CC0 · implementation Apache-2.0 ·
-<a href="https://github.com/GautamTalksDev/plimsoll">source</a></p>
+<a href="https://github.com/GautamTalksDev/plimsoll">Source</a> ·
+<a href="https://github.com/GautamTalksDev/plimsoll/blob/main/PRIVACY.md">Privacy</a> ·
+<a href="https://github.com/GautamTalksDev/plimsoll/blob/main/TERMS.md">Terms</a> ·
+<a href="https://github.com/GautamTalksDev/plimsoll/blob/main/SECURITY.md">Security</a></p>
 </footer>
 </body></html>`
