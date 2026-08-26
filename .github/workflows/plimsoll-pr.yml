@@ -1,0 +1,56 @@
+name: PLIMSOLL PR
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  plimsoll-action:
+    name: plimsoll-action
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: "1.23"
+          cache: true
+
+      - name: Prepare seal and prior attempts
+        working-directory: testdata/e2e
+        run: |
+          set -euo pipefail
+          KEY="${RUNNER_TEMP}/plimsoll.key"
+          LOG="${RUNNER_TEMP}/plimsoll-log.sqlite"
+          go build -trimpath -o "${RUNNER_TEMP}/plimsoll" ../../cmd/plimsoll
+          PL="${RUNNER_TEMP}/plimsoll"
+          "${PL}" seal --file prereg.yaml --key "${KEY}" --publish --log "${LOG}"
+          for i in 1 2 3; do
+            "${PL}" attest --seal e2e-claim.seal.json --results results_fail.json --key "${KEY}" --publish --log "${LOG}" || true
+          done
+          echo "PLIMSOLL_KEY=${KEY}" >> "${GITHUB_ENV}"
+          echo "PLIMSOLL_LOG=${LOG}" >> "${GITHUB_ENV}"
+
+      - name: PLIMSOLL attest (attempt 4)
+        id: plimsoll-action
+        uses: ./.github/actions/plimsoll
+        with:
+          seal-file: testdata/e2e/e2e-claim.seal.json
+          results-file: testdata/e2e/results_fail.json
+          publish: "true"
+          log-path: ${{ env.PLIMSOLL_LOG }}
+          key-path: ${{ env.PLIMSOLL_KEY }}
+          plimsoll-path: ${{ runner.temp }}/plimsoll
+          fail-on: never
+
+      - name: Assert attempt number
+        run: |
+          test "${{ steps.plimsoll-action.outputs.attempt-no }}" = "4"

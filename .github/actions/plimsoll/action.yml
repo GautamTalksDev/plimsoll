@@ -1,0 +1,198 @@
+name: PLIMSOLL Attest
+description: Run plimsoll attest and post a PR check plus comment with verdict, terms, and attempt number.
+branding:
+  icon: shield
+  color: blue
+
+inputs:
+  seal-file:
+    description: Path to the signed seal file (.seal.json)
+    required: true
+  results-file:
+    description: Path to harness results JSON
+    required: true
+  publish:
+    description: Publish attestation to the transparency log
+    required: false
+    default: "false"
+  fail-on:
+    description: "When to fail the step: non-pass (default), fail, invalid, never"
+    required: false
+    default: non-pass
+  plimsoll-version:
+    description: Release tag to install (e.g. v0.1.0). Leave empty to use plimsoll-path or build from source.
+    required: false
+    default: ""
+  plimsoll-path:
+    description: Path to a pre-built plimsoll binary (skips download)
+    required: false
+    default: ""
+  log-path:
+    description: SQLite log path when publish=true
+    required: false
+    default: ""
+  log-url:
+    description: HTTP log base URL when publish=true
+    required: false
+    default: ""
+  key-path:
+    description: Ed25519 private key path (default ~/.config/plimsoll/key)
+    required: false
+    default: ""
+  github-token:
+    description: Token for checks and PR comments
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  verdict:
+    description: Evaluation verdict (PASS, FAIL, or INVALID)
+    value: ${{ steps.attest.outputs.verdict }}
+  exit-code:
+    description: plimsoll attest exit code
+    value: ${{ steps.attest.outputs.exit_code }}
+  attestation:
+    description: Path to the written attestation JSON
+    value: ${{ steps.attest.outputs.attestation }}
+  attempt-no:
+    description: Log-assigned attempt number when publish=true
+    value: ${{ steps.attest.outputs.attempt_no }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install plimsoll
+      shell: bash
+      env:
+        INPUT_PLIMSOLL_VERSION: ${{ inputs.plimsoll-version }}
+        INPUT_PLIMSOLL_PATH: ${{ inputs.plimsoll-path }}
+      run: bash "${{ github.action_path }}/install-plimsoll.sh"
+
+    - name: Run attest
+      id: attest
+      shell: bash
+      env:
+        INPUT_SEAL_FILE: ${{ inputs.seal-file }}
+        INPUT_RESULTS_FILE: ${{ inputs.results-file }}
+        INPUT_PUBLISH: ${{ inputs.publish }}
+        INPUT_LOG_PATH: ${{ inputs.log-path }}
+        INPUT_LOG_URL: ${{ inputs.log-url }}
+        INPUT_KEY_PATH: ${{ inputs.key-path }}
+        INPUT_FAIL_ON: ${{ inputs.fail-on }}
+      run: bash "${{ github.action_path }}/run-attest.sh"
+
+    - name: Post check and PR comment
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799c0da # v7.0.1
+      env:
+        ATTEST_JSON: ${{ runner.temp }}/plimsoll-result.json
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const fs = require('fs');
+          const path = require('path');
+          const raw = fs.readFileSync(process.env.ATTEST_JSON, 'utf8');
+          const result = JSON.parse(raw);
+          const attemptNo = result.attempt_no || 0;
+          const prev = result.previous_verdicts || [];
+          const total = attemptNo > 0 ? attemptNo : 1;
+          const verdict = result.verdict || 'UNKNOWN';
+          const verdictIcon = verdict === 'PASS' ? '✅' : verdict === 'FAIL' ? '❌' : '⚠️';
+
+          let header;
+          if (attemptNo <= 1) {
+            header = `## ${verdictIcon} PLIMSOLL — Attempt 1`;
+          } else if (attemptNo >= 4) {
+            header = `## 🚨 PLIMSOLL — Attempt **${attemptNo}** (multi-attempt disclosure)`;
+          } else {
+            header = `## ${verdictIcon} PLIMSOLL — Attempt **${attemptNo}**`;
+          }
+
+          const terms = (result.terms || []).filter(t => t.identifier);
+          let termsTable = '| Metric | Value | Comparison | Outcome |\n| --- | --- | --- | --- |\n';
+          for (const t of terms) {
+            const cmp = `${t.comparator || ''} ${t.literal || ''}`.trim();
+            termsTable += `| \`${t.identifier}\` | ${t.value} | ${cmp} | ${t.outcome ? '✓' : '✗'} |\n`;
+          }
+          if (terms.length === 0) {
+            termsTable = '_No metric terms recorded._\n';
+          }
+
+          let attemptBlock = '';
+          if (attemptNo > 1) {
+            const history = prev.map((v, i) => `| ${i + 1} | ${v} |`).join('\n');
+            attemptBlock = [
+              '### Attempt history',
+              `> **This evaluation is attempt ${attemptNo}** — not the first run against this seal.`,
+              '',
+              '| Attempt | Verdict |',
+              '| --- | --- |',
+              history,
+              `| **${attemptNo}** | **${verdict}** (this run) |`,
+              '',
+            ].join('\n');
+          } else if (result.published) {
+            attemptBlock = '_First published attempt against this seal._\n';
+          }
+
+          const body = [
+            '<!-- plimsoll-attest -->',
+            header,
+            '',
+            `**Verdict:** \`${verdict}\``,
+            result.expression ? `**Rule:** \`${result.expression}\`` : '',
+            attemptNo > 0 ? `**Attempt:** ${attemptNo}${prev.length ? ` (previous: ${prev.join(', ')})` : ''}` : '',
+            '',
+            attemptBlock,
+            '### Terms',
+            termsTable,
+            '',
+            result.attestation ? `_Attestation: \`${result.attestation}\`_` : '',
+          ].filter(Boolean).join('\n');
+
+          const { owner, repo } = context.repo;
+          const sha = context.payload.pull_request.head.sha;
+          const conclusion = result.action_conclusion || (verdict === 'PASS' ? 'success' : 'failure');
+          await github.rest.checks.create({
+            owner,
+            repo,
+            name: 'PLIMSOLL Evaluation',
+            head_sha: sha,
+            status: 'completed',
+            conclusion,
+            output: {
+              title: `PLIMSOLL ${verdict}${attemptNo ? ` (attempt ${attemptNo})` : ''}`,
+              summary: body.slice(0, 65535),
+            },
+          });
+
+          const issue_number = context.payload.pull_request.number;
+          const { data: comments } = await github.rest.issues.listComments({
+            owner,
+            repo,
+            issue_number,
+            per_page: 100,
+          });
+          const existing = comments.find(c => c.body && c.body.includes('<!-- plimsoll-attest -->'));
+          if (existing) {
+            await github.rest.issues.updateComment({
+              owner,
+              repo,
+              comment_id: existing.id,
+              body,
+            });
+          } else {
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number,
+              body,
+            });
+          }
+
+    - name: Fail on verdict
+      if: steps.attest.outputs.should_fail == 'true'
+      shell: bash
+      run: |
+        echo "PLIMSOLL attest failed (fail-on=${{ inputs.fail-on }}, verdict=${{ steps.attest.outputs.verdict }})" >&2
+        exit "${{ steps.attest.outputs.exit_code }}"

@@ -1,0 +1,44 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "plimsoll"
+version = "0.1.0"
+description = "Thin Python wrapper for the PLIMSOLL evaluation verification CLI"
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.9"
+authors = [{ name = "PLIMSOLL Authors" }]
+keywords = ["evaluation", "verification", "ml", "testing"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Topic :: Software Development :: Quality Assurance",
+]
+dependencies = []
+
+[project.optional-dependencies]
+pytest = ["pytest>=7.0"]
+
+[project.urls]
+Homepage = "https://github.com/GautamTalksDev/plimsoll"
+Documentation = "https://github.com/GautamTalksDev/plimsoll/blob/main/docs/QUICKSTART.md"
+Repository = "https://github.com/GautamTalksDev/plimsoll"
+
+[project.entry-points.pytest11]
+plimsoll = "plimsoll.pytest_plugin"
+
+[tool.hatch.build.targets.wheel]
+packages = ["plimsoll"]
+
+[tool.hatch.build.targets.sdist]
+include = ["/plimsoll", "/README.md"]
+
+[tool.pytest.ini_options]
+markers = [
+  "plimsoll_sealed(seal_path): require a PASS attestation for the given seal file",
+]

@@ -1,0 +1,83 @@
+name: Python Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  wheels:
+    name: wheel-${{ matrix.goos }}-${{ matrix.goarch }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            goos: linux
+            goarch: amd64
+          - runner: ubuntu-latest
+            goarch: arm64
+            goos: linux
+          - runner: macos-latest
+            goos: darwin
+            goarch: arm64
+          - runner: macos-13
+            goos: darwin
+            goarch: amd64
+          - runner: windows-latest
+            goos: windows
+            goarch: amd64
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: "1.23"
+
+      - uses: actions/setup-python@8d5446bdc38807a879c148bd85850a7992e76926 # v6.1.0
+        with:
+          python-version: "3.12"
+
+      - name: Build plimsoll binary
+        shell: bash
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: |
+          ext=""
+          if [ "${GOOS}" = "windows" ]; then ext=".exe"; fi
+          go build -trimpath -ldflags="-s -w" -o "plimsoll${ext}" ./cmd/plimsoll
+          echo "PLIMSOLL_OUT=plimsoll${ext}" >> "${GITHUB_ENV}"
+
+      - name: Build wheel
+        shell: bash
+        run: |
+          mkdir -p dist/python
+          export PLIMSOLL_BIN="${{ github.workspace }}/${PLIMSOLL_OUT}"
+          bash scripts/build-python-wheel.sh
+
+      - uses: actions/upload-artifact@50769540e7f4bd1f7950e979d3cec3b27b47a705 # v4.4.0
+        with:
+          name: wheel-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: dist/python/*.whl
+
+  publish:
+    name: publish-pypi
+    needs: wheels
+    runs-on: ubuntu-latest
+    environment: pypi
+    steps:
+      - uses: actions/download-artifact@fa0a085b51d62a2b265fd331cdbd7e9392a0ed6f # v4.1.0
+        with:
+          path: dist/python
+          pattern: wheel-*
+          merge-multiple: true
+
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/python
