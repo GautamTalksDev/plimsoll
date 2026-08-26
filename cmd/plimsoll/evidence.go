@@ -127,7 +127,7 @@ func runEvidence(out *cliout.Printer, cfg evidenceCLI) error {
 		_, err = out.Out.Write(data)
 		return err
 	}
-	if err := os.WriteFile(path, data, 0o644); err != nil {
+	if err := os.WriteFile(path, data, 0o644); err != nil { //nolint:gosec // G306 -- public evidence pack
 		return opErrf("evidence: write %s: %v", path, err)
 	}
 	if out.JSON {

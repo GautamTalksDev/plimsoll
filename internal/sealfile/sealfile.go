@@ -68,7 +68,7 @@ func Write(dir string, doc *Document) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if err := os.WriteFile(path, b, 0o644); err != nil {
+	if err := os.WriteFile(path, b, 0o644); err != nil { //nolint:gosec // G306 -- public seal artifact
 		return "", err
 	}
 	return path, nil

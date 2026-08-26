@@ -120,7 +120,7 @@ func runAttest(out *cliout.Printer, sealPath, resultsPath string, publish bool, 
 	wd, _ := os.Getwd()
 	attPath := filepath.Join(wd, sealfile.SafeBaseName(doc.Seal.Seal.Subject.Name)+".attest.json")
 	b, _ := json.MarshalIndent(signed.Document, "", "  ")
-	if err := os.WriteFile(attPath, b, 0o644); err != nil {
+	if err := os.WriteFile(attPath, b, 0o644); err != nil { //nolint:gosec // G306 -- public attestation artifact
 		return exitOperational, opErrf("write attestation: %v", err)
 	}
 	var pubRes *logclient.PublishAttestResult
@@ -140,7 +140,7 @@ func runAttest(out *cliout.Printer, sealPath, resultsPath string, publish bool, 
 			return exitOperational, opErrf("envelope: %v", err)
 		}
 		eb, _ := json.MarshalIndent(env, "", "  ")
-		if err := os.WriteFile(attPath, eb, 0o644); err != nil {
+		if err := os.WriteFile(attPath, eb, 0o644); err != nil { //nolint:gosec // G306 -- public attestation artifact
 			return exitOperational, opErrf("write envelope: %v", err)
 		}
 	}

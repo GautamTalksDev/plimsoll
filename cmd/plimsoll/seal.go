@@ -186,7 +186,7 @@ func rewritePreregDataset(file string, raw []byte, hash string, n int) (bool, er
 	if err != nil {
 		return false, err
 	}
-	if err := os.WriteFile(file, out, 0o644); err != nil {
+	if err := os.WriteFile(file, out, 0o644); err != nil { //nolint:gosec // G306 -- user prereg file, not a secret
 		return false, err
 	}
 	return true, nil

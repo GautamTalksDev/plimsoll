@@ -131,7 +131,7 @@ func WriteBundle(path string, b *Bundle) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(path, raw, 0o644)
+	return os.WriteFile(path, raw, 0o644) //nolint:gosec // G306 -- public offline verify bundle
 }
 
 // BuildBundleFromLog assembles a bundle for offline verification.

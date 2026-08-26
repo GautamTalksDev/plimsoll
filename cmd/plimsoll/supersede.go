@@ -80,7 +80,7 @@ func runSupersede(out *cliout.Printer, sealPath, reason, outFile string) error {
 	if err != nil {
 		return opErrf("marshal: %v", err)
 	}
-	if err := os.WriteFile(outFile, raw, 0o644); err != nil {
+	if err := os.WriteFile(outFile, raw, 0o644); err != nil { //nolint:gosec // G306 -- public prereg draft, not a secret
 		return opErrf("write: %v", err)
 	}
 	if out.JSON {
