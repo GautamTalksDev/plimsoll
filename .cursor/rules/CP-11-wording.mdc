@@ -1,0 +1,36 @@
+---
+description: Compliance and marketing wording — never claim certification or compliance
+globs:
+  - "**/*"
+---
+
+# CP-11 — Compliance wording (not a notified body)
+
+PLIMSOLL is an integrity and verification tool. It is **not** a notified body,
+auditor, certification scheme, or legal advisor.
+
+## Forbidden claims
+
+Never write or imply, about PLIMSOLL or its outputs:
+
+- "PLIMSOLL makes you compliant"
+- "certified" (as an outcome of using PLIMSOLL)
+- "audit-ready" (as an outcome of using PLIMSOLL)
+- Any statement that using PLIMSOLL satisfies a law, standard, or regulation
+
+## Required framing
+
+Use only:
+
+- "this evidence pack is designed to support documentation of …"
+- "designed to support record-keeping of …"
+- "supports independent verification of …"
+
+Be precise and conservative. Map pack contents to specific clauses; list gaps.
+
+## Applies to
+
+- `docs/COMPLIANCE-MAPPING.md` and all user-facing docs
+- Static site copy (`internal/site/`)
+- CLI human output where governance is mentioned
+- Marketing, README, and release notes
