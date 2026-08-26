@@ -1,0 +1,10 @@
+{
+  "format": "plimsoll-generic-v1",
+  "harness_version": "1.0.0",
+  "note": "\u001b[31mRED\u001b[0m \u202eoverride",
+  "rows": [
+    {"id": "row-001", "metrics": {"acc": "0.40"}},
+    {"id": "row-002", "metrics": {"acc": "0.50"}},
+    {"id": "row-003", "metrics": {"acc": "0.60"}}
+  ]
+}

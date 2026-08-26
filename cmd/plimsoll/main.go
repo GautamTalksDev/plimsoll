@@ -15,17 +15,22 @@
 package main
 
 import (
+	"fmt"
 	"os"
-
-	"github.com/spf13/cobra"
 )
 
 func main() {
-	root := &cobra.Command{
-		Use:   "plimsoll",
-		Short: "Verify evaluations you ran with your own tools",
-	}
-	if err := root.Execute(); err != nil {
+	if err := newRoot().Execute(); err != nil {
+		if isOperational(err) {
+			os.Exit(exitOperational)
+		}
+		if ec, ok := err.(*exitCode); ok {
+			os.Exit(ec.code)
+		}
 		os.Exit(1)
 	}
 }
+
+type exitCode struct{ code int }
+
+func (e *exitCode) Error() string { return fmt.Sprintf("exit %d", e.code) }

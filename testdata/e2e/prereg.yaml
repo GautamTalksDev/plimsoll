@@ -1,0 +1,31 @@
+plimsoll_version: prereg-v1
+created_at: "2026-08-25T12:00:00Z"
+subject:
+  name: e2e-claim
+  system_under_test:
+    model: e2e-model
+    prompt_sha256: "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    config_sha256: "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+dataset:
+  path: dataset.jsonl
+  sampling: exhaustive
+  held_out: false
+harness:
+  tool: generic
+  version: "1.0.0"
+  config_sha256: "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+metrics:
+  - id: acc
+    name: accuracy
+    definition_uri: https://example.invalid/metrics/accuracy
+    direction: higher_is_better
+decision_rule:
+  expression: "acc.mean >= 0.75"
+  primary_metric: acc
+  threshold: "0.75"
+  comparison: ">="
+  precision: 2
+exclusions: []
+planned_attempts: 5
+analysis_plan: E2E test claim.
+canon_version: plimsoll-canon-v1
