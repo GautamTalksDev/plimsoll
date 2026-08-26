@@ -23,6 +23,11 @@ linters:
       - path: ^(cmd/plimsoll|cmd/plimsoll-static|cmd/plimsoll-append|internal/(datasetload|sealfile|keys|evidence|staticlog|logappend))/
         text: "G304"
         linters: [gosec]
+      # The static tree and embedded site assets are published to a CDN and
+      # must be world-readable. 0755 dirs / 0644 files are the intent here.
+      - path: ^internal/(staticlog|site|verifylog)/
+        text: "(G301|G306)"
+        linters: [gosec]
 
 issues:
   max-issues-per-linter: 0

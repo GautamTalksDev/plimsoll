@@ -247,9 +247,6 @@ func writeConsistency(cfg Config, size int64, pubB64 string) error {
 		for i, h := range proof.AuditPath {
 			audit[i] = hex.EncodeToString(h)
 		}
-		if audit == nil {
-			audit = []string{}
-		}
 		name := strconv.FormatInt(cp.TreeSize, 10) + "-" + strconv.FormatInt(size, 10)
 		if err := writeJSON(filepath.Join(dir, name), consistencyFile{
 			OldSize: proof.OldSize, NewSize: proof.NewSize,
