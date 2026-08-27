@@ -4,20 +4,13 @@
 
 **Spec / canon:** evaluation intended against SPEC-PREREG **prereg-v1** and canon version as shipped at evaluation time. Spec changes, if any, are future work (v2); v1 is not rewritten to fit outcomes.
 
-**KT-2 threshold (unchanged from README / CP-0):** across at least 100 sealed evaluations, if fewer than **10%** show either more than one attested attempt against the same seal or a superseding seal issued after a failed attempt → publish and stop.
+**KT-2.** If, across at least 100 sealed evaluations, fewer than 10% show either more than one attested attempt against the same seal or a superseding seal issued after a failed attempt, then post-hoc flexibility is not occurring in practice and this log adds nothing over a git commit. Publish and stop.
 
 ---
 
 ## 1. Method
 
-| Field | Value |
-| --- | --- |
-| Teams | None recruited. CP-13 required exactly three teams (AI vendor → regulated buyer; mid-size internal platform; OSS model/agent with published benchmarks). No written consents exist. |
-| Period | Not started. Required duration: 8 weeks of hand recording after integration. |
-| Harnesses | None observed in a pilot. Intended coverage: whatever each team already ran (e.g. DeepEval, Inspect, custom). |
-| Spec | prereg-v1 |
-| Canon | As implemented in-tree at pilot time (not applied; no pilot seals). |
-| Data sources | No lab notebook, no override log, no aggregate pilot statistics. Fixture / CI seals are **not** counted toward KT-2. |
+No teams were recruited. CP-13 required exactly three (AI vendor → regulated buyer; mid-size internal platform; OSS model/agent with published benchmarks); no written consents exist. The eight-week hand-recording period after integration did not start. No harness was observed in a pilot. Fixture / CI seals are **not** counted toward KT-2. There is no lab notebook, override log, or aggregate pilot statistics.
 
 Offer that would have applied (for the record): free integration by us; teams keep everything; publish only aggregates unless named consent in writing. That offer was not made.
 
@@ -25,13 +18,9 @@ Offer that would have applied (for the record): free integration by us; teams ke
 
 ## 2. KT-2
 
-**N = 0** sealed evaluations from the CP-13 pilot. **X = 0** seals with >1 attempt or a post-failure supersede (undefined rate; no sample).
-
-No confidence interval is reported: there is no pilot sample.
-
 **KT-2: NOT EVALUABLE — N=0 sealed evaluations from the required pilot (minimum N=100); the 10% bar from the README at CP-0 is unchanged and is neither PASS nor FAIL.**
 
-Until N≥100 from consented pilot (or later public-log) seals, do not treat absence of retries as evidence that post-hoc flexibility is rare, and do not treat this document as a kill-test result.
+Until N≥100 from consented pilot (or later public-log) seals, do not treat absence of retries as evidence that post-hoc flexibility is rare, and do not treat this document as a kill-test result. No confidence interval is reported: there is no pilot sample.
 
 ---
 
@@ -52,27 +41,15 @@ other than the operator.
 
 ---
 
-## 3. Override log
+## 3. Override log and INVALID analysis
 
-**Count:** 0 override requests recorded.
+**Override requests:** 0. No team asked for an override. No verbatim request or reply wording exists. This section is empty on purpose; fabricating quotes would make this document worthless.
 
-No team asked for an override. No verbatim wording exists. No reply wording exists.
-
-This section is empty on purpose. It is the section that would be most valuable after a real pilot; fabricating quotes would make this document worthless.
+**INVALID rate:** unknown (no pilot runs). Predicted dominant causes (hypothesis only — not observed): mismatched `n` / sample-size fields vs harness output; harness or adapter version drift between seal and attestation. No empirical confirmation or refutation. Do not cite this section as a finding.
 
 ---
 
-## 4. INVALID analysis
-
-**INVALID rate:** unknown (no pilot runs).
-
-**Predicted dominant causes (hypothesis only — not observed):** mismatched `n` / sample-size fields vs harness output; harness or adapter version drift between seal and attestation.
-
-No empirical confirmation or refutation. Do not cite this section as a finding.
-
----
-
-## 5. Limitations
+## 4. Limitations
 
 - **Harness coverage:** none measured.
 - **Pilot self-selection:** no pilot; selection bias not estimable.

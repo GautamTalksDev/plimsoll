@@ -11,6 +11,7 @@ Every path follows the same three steps:
 3. **Attest** — adapt results, evaluate the sealed rule, sign, publish.
 
 **Publish latency (public log):** `--publish` to `https://plimsoll.gautamkhosla.com`
+(current entries: operator's own fixtures; RESULTS.md §2a)
 is asynchronous. The Worker accepts the submit immediately; the git-backed log
 appends within about a minute. Until then, `/seal/{hash}` is empty. Use
 `--wait` (or `plimsoll await`) when you need the inclusion proof before the
@@ -26,6 +27,7 @@ test -f ~/.config/plimsoll/key || plimsoll seal --help >/dev/null
 
 Use a local SQLite log for development (`--log ./plimsoll-log.sqlite`).
 For the public log, set `--log-url https://plimsoll.gautamkhosla.com` and prefer `--wait` in scripts.
+Current public-log entries are the operator's own fixtures (RESULTS.md §2a), not third-party evaluations.
 
 ---
 
@@ -91,14 +93,16 @@ analysis_plan: Quickstart generic example.
 plimsoll seal --file prereg.yaml --publish --log ./plimsoll-log.sqlite
 plimsoll attest --seal my-claim.seal.json --results results.json --publish --log ./plimsoll-log.sqlite
 
-# Public log (asynchronous — about a minute to appear; --wait blocks for CI):
+# Public log (asynchronous — about a minute to appear; --wait blocks for CI).
+# Operator fixtures only on this log today (RESULTS.md §2a) — not third-party evals.
 plimsoll seal --file prereg.yaml --publish --log-url https://plimsoll.gautamkhosla.com --wait
 plimsoll attest --seal my-claim.seal.json --results results.json \
-  --publish --log-url https://plimsoll.gautamkhosla.com --wait
+  --publish --log-url https://plimsoll.gautamkhosla.com --wait  # fixtures: RESULTS.md §2a
 ```
 
 Third parties verify with `plimsoll verify my-claim.attest.json --log https://plimsoll.gautamkhosla.com`.
 Without `--wait`, confirm inclusion with `plimsoll await --seal sha256:… --log https://plimsoll.gautamkhosla.com`.
+The log may already contain the operator's own fixtures; those are not third-party evaluations (RESULTS.md §2a).
 
 ---
 

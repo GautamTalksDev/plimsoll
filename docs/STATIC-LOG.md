@@ -5,6 +5,8 @@ can serve as the public Plimsoll Log read API. The generator is deterministic:
 two runs on the same database produce byte-identical trees (`diff -r`).
 
 ```bash
+# -base-url for the public deployment; live entries there are operator
+# fixtures only (RESULTS.md §2a), not third-party evaluations.
 plimsoll-static -db log.sqlite -out ./public -key log-signing.json \
                 -base-url https://plimsoll.gautamkhosla.com
 ```

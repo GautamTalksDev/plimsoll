@@ -3,7 +3,8 @@
 This document is the day-one IP position. PLIMSOLL is a pre-registration log
 for evaluation decision rules, plus independently verifiable attestations of
 later attempts against those rules. It does not run evaluations and does not
-see eval data.
+see eval data. For the strongest objections to building this at all (uptake,
+incentives, the pre-seal window), see [WHY-NOT-ALREADY.md](WHY-NOT-ALREADY.md).
 
 Every date in the table precedes 2022-05-12.
 

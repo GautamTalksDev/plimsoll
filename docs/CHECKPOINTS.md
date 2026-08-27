@@ -15,6 +15,8 @@ tests and releases still cover it.
 
 It is **not** what operates the public Plimsoll Log at
 `https://plimsoll.gautamkhosla.com`.
+Entries currently there are the operator's own fixtures against a five-row
+synthetic dataset; they do not count toward KT-2 (see RESULTS.md §2a).
 
 ---
 
@@ -29,7 +31,7 @@ It is **not** what operates the public Plimsoll Log at
 | CP-10b.2 | `plimsoll-log` scaffold + append Action (`plimsoll-append`) |
 | CP-10b.3 | Cloudflare Worker `POST /submit` (shape only; not trust gate) |
 | CP-10b.4 | Async client: 202, `await`, `--wait` |
-| CP-10b.5 | Pages + DNS `plimsoll.gautamkhosla.com` |
+| CP-10b.5 | Pages + DNS `plimsoll.gautamkhosla.com` (live entries: operator fixtures only; RESULTS.md §2a) |
 | CP-10b.6 | `docs/MIRRORING.md`, `plimsoll verify-log`, daily mirror workflow |
 
 **Public path:** Worker → Actions → git (`GautamTalksDev/plimsoll-log`) → Pages.

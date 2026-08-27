@@ -24,11 +24,11 @@ You have no way to check any of it. Not because they are lying, but because noth
 
 **How many times did they run it?**
 
-That last one is the real problem. Moving a threshold after the fact is the amateur version, and everybody already watches for it. The version that actually happens is quieter. Run the eval nine times with slightly different seeds, temperatures, or retrieval settings. Publish the run that cleared the bar. Delete the other eight.
-
-Nothing was falsified. Every number is real. The claim is still worthless.
+That last question is what this log is for. Moving a threshold after the fact is the amateur version, and everybody already watches for it. The quieter failure mode — *if* it occurs — looks like this: run the eval nine times with slightly different seeds, temperatures, or retrieval settings; publish the run that cleared the bar; omit the other eight. Nothing was falsified. Every number is real. The claim is still uncheckable.
 
 Git commits do not catch this. Signed results do not catch this. A vendor's own eval platform structurally cannot catch this, because it belongs to the vendor.
+
+**No field data exists yet. All three kill tests are currently unevaluable (N=0), and the entries in the public log are the operator's own fixtures.** See [RESULTS.md §2a](RESULTS.md#2a-entries-currently-in-the-public-log).
 
 ## What PLIMSOLL does about it
 
@@ -153,6 +153,8 @@ Seal it, run your eval, attest:
 
 ```bash
 # Public log appends asynchronously (~60 seconds). Use --wait in CI.
+# Current log entries are the operator's own fixtures against a five-row
+# synthetic dataset; they do not count toward KT-2 (see RESULTS.md §2a).
 export PLIMSOLL_LOG_URL=https://plimsoll.gautamkhosla.com
 
 plimsoll seal --file prereg.yaml --publish --log-url "$PLIMSOLL_LOG_URL" --wait
@@ -191,10 +193,11 @@ Exit codes: `0` PASS, `1` FAIL, `2` INVALID, `3` operational error, `4` await ti
 Anyone can now check your work:
 
 ```bash
+# Operator fixtures only on this log today — RESULTS.md §2a.
 plimsoll verify support-agent-quality.attest.json --log https://plimsoll.gautamkhosla.com
 ```
 
-Or they can open [plimsoll.gautamkhosla.com/verify](https://plimsoll.gautamkhosla.com/verify), paste the file, and read the answer. No install, no account, and the file never leaves their browser.
+Or they can open [plimsoll.gautamkhosla.com/verify](https://plimsoll.gautamkhosla.com/verify), paste the file, and read the answer. No install, no account, and the file never leaves their browser. Entries currently on that log are the operator's own fixtures, authored and verified by the same person, against a five-row synthetic dataset — not third-party evaluations ([RESULTS.md §2a](RESULTS.md#2a-entries-currently-in-the-public-log)).
 
 Longer walkthroughs for each harness are in [docs/QUICKSTART.md](docs/QUICKSTART.md).
 
@@ -383,7 +386,7 @@ This project is pre-registered against itself. These were written into this READ
 
 **KT-3.** If nobody has contacted us unprompted requesting a private log or evidence export within three months of launch, there is no business here. Keep the public log running and move on.
 
-Current status is in [RESULTS.md](RESULTS.md). At the time of writing, KT-2 is **not evaluable**: the pilot has not run, N is zero, and the honest answer is neither PASS nor FAIL. Writing anything else would be the exact behaviour this tool exists to make visible.
+Current status is in [RESULTS.md](RESULTS.md). Pilot N = 0. The public log contains operator fixtures that do not count toward any kill test ([§2a](RESULTS.md#2a-entries-currently-in-the-public-log)). KT-2 is **not evaluable**: neither PASS nor FAIL. Writing anything else would be the exact behaviour this tool exists to make visible.
 
 ---
 
