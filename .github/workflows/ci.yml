@@ -64,7 +64,7 @@ jobs:
 
       # CodeQL runs via default setup. gosec is a second, Go-specific analyzer
       # and is what OpenSSF Scorecard can detect from a workflow file.
-      - uses: securego/gosec@15d5c61e866bc2e2e8389376a31f1e5e09bde7d8 # v2.22.9
+      - uses: securego/gosec@deb54465fea23d19a77f037e11e6589021f8501d # v2.29.0
         with:
           args: "-no-fail -fmt sarif -out results.sarif -exclude-dir=node_modules ./..."
 
